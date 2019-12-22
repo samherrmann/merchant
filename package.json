@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "description": "CLI to manage Shopify stores",
   "scripts": {
-    "start": "rimraf dist && tsc -w",
-    "build": "rimraf dist && tsc"
+    "start": "rimraf lib && tsc -w",
+    "build": "rimraf lib && tsc"
   },
   "bin": {
-    "shopctl": "dist/index.js"
+    "shopctl": "lib/index.js"
   },
   "repository": {
     "type": "git",
