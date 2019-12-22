@@ -2,7 +2,13 @@
   "name": "shopctl",
   "version": "0.0.0",
   "description": "CLI to manage Shopify stores",
-  "scripts": { },
+  "scripts": {
+    "start": "rimraf dist && tsc -w",
+    "build": "rimraf dist && tsc"
+  },
+  "bin": {
+    "shopctl": "dist/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/samherrmann/shopctl.git"
@@ -12,5 +18,22 @@
   "bugs": {
     "url": "https://github.com/samherrmann/shopctl/issues"
   },
-  "homepage": "https://github.com/samherrmann/shopctl#readme"
+  "homepage": "https://github.com/samherrmann/shopctl#readme",
+  "dependencies": {
+    "cli-progress": "^3.4.0",
+    "commander": "^4.0.1",
+    "csv": "^5.3.1",
+    "dotenv": "^8.2.0",
+    "fs-extra": "^8.1.0",
+    "mustache": "^3.1.0",
+    "shopify-api-node": "^2.25.1"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^1.8.1",
+    "@types/fs-extra": "^8.0.1",
+    "@types/mustache": "^0.8.32",
+    "@types/node": "^12.12.17",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.7.3"
+  }
 }
