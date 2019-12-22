@@ -1,6 +1,6 @@
 {
   "name": "shopctl",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CLI to manage Shopify stores",
   "scripts": {
     "start": "rimraf lib && tsc -w",
@@ -19,6 +19,9 @@
     "url": "https://github.com/samherrmann/shopctl/issues"
   },
   "homepage": "https://github.com/samherrmann/shopctl#readme",
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "cli-progress": "^3.4.0",
     "commander": "^4.0.1",
