@@ -13,7 +13,7 @@ export function pushCommand(cmd: Command): Command {
       // read the shop configuration file.
       const shopConfig = readShopConfig();
       // for each product type...
-      for (let path of shopConfig.products) {
+      for (const path of shopConfig.products) {
         // read the product configuration file.
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.

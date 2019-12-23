@@ -11,6 +11,7 @@ export function readProducts(path: string): Product[] {
   return parseSync(csv, {
     delimiter: csvDelimiter,
     columns: true,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     skip_empty_lines: true
   });
 }

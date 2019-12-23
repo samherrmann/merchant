@@ -10,7 +10,7 @@ export function maskString(
   input: string,
   indices: number[],
   pattern: string,
-  replaceSymbol: string = '#'): string {
+  replaceSymbol = '#'): string {
   return indices.reduce(
     (prev, curr) => prev.replace(replaceSymbol, input.charAt(curr)),
     pattern

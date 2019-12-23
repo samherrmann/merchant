@@ -2,7 +2,7 @@ export interface ProductConfig {
   /**
    * Type of products.
    */
-  type: string,
+  type: string;
   /**
    * Path to the product data file, relative to the working directory.
    */
@@ -23,7 +23,7 @@ export interface ProductConfig {
      * The unit of measurement.
      */
     units?: string;
-  }[],
+  }[];
   /**
    * The product title. The title may be constructed from product data using
    * the following form:
@@ -57,5 +57,5 @@ export interface ProductConfig {
      * Path to the directory containing the image, relative to the working directory.
      */
     dir: string;
-  }
+  };
 }
