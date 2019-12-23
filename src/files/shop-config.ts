@@ -1,5 +1,6 @@
-import { ProductConfig } from './product-config';
-
 export interface ShopConfig {
-  products: ProductConfig[];
+  /**
+   * Paths to product configuration files.
+   */
+  products: string[];
 }

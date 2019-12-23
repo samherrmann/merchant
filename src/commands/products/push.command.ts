@@ -4,16 +4,18 @@ import { Command } from 'commander';
 import { writeProducts } from '../../files/write-products';
 import { createProduct } from '../../shopify/create-product';
 import { readShopConfig } from '../../files/read-shop-config';
+import { readProductConfig } from '../../files/read-product-config';
 
 export function pushCommand(cmd: Command): Command {
   return cmd.command('push')
     .description('Pushes all products to the store')
     .action(async () => {
-
-      // read the configuration file.
-      const config = readShopConfig();
+      // read the shop configuration file.
+      const shopConfig = readShopConfig();
       // for each product type...
-      for (let c of config.products) {
+      for (let path of shopConfig.products) {
+        // read the product configuration file.
+        const c = readProductConfig(path);
         // get products from file that don't already exist in store.
         const products = readProducts(c.dataPath).filter(p => !p.shopifyId)
         // exit if no new products exist.
