@@ -17,7 +17,7 @@ export function pushCommand(cmd: Command): Command {
         // read the product configuration file.
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.
-        const products = readProducts(c.dataPath).filter(p => !p.shopifyId)
+        const products = readProducts(c.dataPath, path).filter(p => !p.shopifyId)
         // exit if no new products exist.
         if (!products.length) {
           console.info(`All "${c.type}" products already exist in the store.`);
