@@ -9,7 +9,7 @@ export function readProductConfig(path: string): ProductConfig {
   const c: ProductConfig = readJSONSync(path);
   c.dataPath = join(dirname(path), c.dataPath);
   if (c.image) {
-    c.image.path = join(dirname(path), c.image.path);
+    c.image.dir = join(dirname(path), c.image.dir);
   }
   return c;
 }

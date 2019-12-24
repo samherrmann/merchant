@@ -72,11 +72,11 @@ function readImage(p: Product, c: ProductConfig): string | undefined {
 
   const filename = maskString(
     p[image.key],
-    image.valueIndices,
+    image.charIndices,
     image.filenamePattern
   );
 
-  const filePath = `${image.path}/${filename}.jpg`;
+  const filePath = `${image.dir}/${filename}.jpg`;
   if (!existsSync(filePath)) { return; }
 
   return readFileSync(filePath).toString('base64');
