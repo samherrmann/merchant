@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import program from 'commander';
 
 // Check Node.js version
-const SUPPORTED_VERSION = 'v10';
+const SUPPORTED_VERSION = 'v12';
 if (process.version.split('.')[0] !== SUPPORTED_VERSION) {
   console.warn(
     `WARNING: The Shopify CLI has only been tested with Node.js ` +
