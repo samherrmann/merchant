@@ -25,23 +25,23 @@
     "lib"
   ],
   "dependencies": {
-    "cli-progress": "^3.4.0",
-    "commander": "^4.0.1",
+    "cli-progress": "^3.6.0",
+    "commander": "^4.1.1",
     "csv": "^5.3.1",
     "dotenv": "^8.2.0",
     "fs-extra": "^8.1.0",
-    "mustache": "^3.1.0",
-    "shopify-api-node": "^2.25.1"
+    "mustache": "^4.0.0",
+    "shopify-api-node": "^3.1.0"
   },
   "devDependencies": {
-    "@types/cli-progress": "^1.8.1",
+    "@types/cli-progress": "^3.4.2",
     "@types/fs-extra": "^8.0.1",
-    "@types/mustache": "^0.8.32",
-    "@types/node": "^12.12.17",
-    "@typescript-eslint/eslint-plugin": "^2.12.0",
-    "@typescript-eslint/parser": "^2.12.0",
+    "@types/mustache": "^4.0.0",
+    "@types/node": "^12.12.26",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
     "eslint": "^6.8.0",
-    "rimraf": "^3.0.0",
-    "typescript": "^3.7.3"
+    "rimraf": "^3.0.1",
+    "typescript": "^3.7.5"
   }
 }
