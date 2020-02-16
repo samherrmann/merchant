@@ -1,6 +1,6 @@
 import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
-import Shopify, { IProductImage, IProduct } from 'shopify-api-node';
+import Shopify, { IProduct } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
 import { existsSync, readFileSync } from 'fs-extra';
 import mustache from 'mustache';
@@ -40,7 +40,7 @@ function createTitle(p: Product, c: ProductConfig): string {
 /**
  * Returns the base64 encoded image of the provided product.
  */
-function readImage(p: Product, c: ProductConfig): string | undefined {
+function readImage(p: Product, c: ProductConfig): Image | undefined {
   const image = c.image;
   if (!(image && p[image.key])) { return; }
 
@@ -49,11 +49,14 @@ function readImage(p: Product, c: ProductConfig): string | undefined {
     image.charIndices,
     image.filenamePattern
   );
-
-  const filePath = `${image.dir}/${filename}.jpg`;
+  const fileName = `${filename}.jpg`;
+  const filePath = `${image.dir}/${fileName}`;
   if (!existsSync(filePath)) { return; }
 
-  return readFileSync(filePath).toString('base64');
+  return {
+    filename: fileName,
+    base64: readFileSync(filePath).toString('base64')
+  };
 }
 
 /**
@@ -65,9 +68,8 @@ export function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
   const image = readImage(p, c);
 
   /* eslint-disable @typescript-eslint/camelcase */
-  const product: RecursivePartial<Shopify.IProduct> = {
+  const product: NewProduct = {
     title: title,
-
     body_html: table,
     vendor: p.vendor,
     product_type: c.type,
@@ -77,12 +79,12 @@ export function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
       weight: parseFloat(p.weight),
       weight_unit: p.weightUnit || 'kg'
     }],
-    // IProductImage interface does not currently define the attachment
-    // property as defined by the Shopify documentation:
-    // https://help.shopify.com/en/api/reference/products/product#create-2019-10
     images: [
-      ...image ? [{ attachment: image }] : []
-    ] as Partial<IProductImage & { attachment: string }>[]
+      ...image ? [{
+        attachment: image.base64,
+        filename: image.filename
+      }] : []
+    ]
   };
   /* eslint-enable @typescript-eslint/camelcase */
   return shopify.product.create(product);
@@ -91,3 +93,15 @@ export function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
 type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
+
+interface Image {
+  base64: string;
+  filename: string;
+}
+
+type NewProduct = RecursivePartial<Shopify.IProduct & {
+  images: {
+    attachment: string;
+    filename: string;
+  }[];
+}>;
