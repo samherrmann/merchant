@@ -44,17 +44,25 @@ function readImage(p: Product, c: ProductConfig): Image | undefined {
   const image = c.image;
   if (!(image && p[image.key])) { return; }
 
-  const filename = maskString(
-    p[image.key],
-    image.charIndices,
-    image.filenamePattern
-  );
-  const fileName = `${filename}.jpg`;
-  const filePath = `${image.dir}/${fileName}`;
+  // By default, assign the value in the column defined by `image.key` as the
+  // image filename.
+  let filename = p[image.key];
+  // If the image configuration also defines a `charIndices` and a
+  // `filenamePattern` property, then mask the filename value using those
+  // properties.
+  if (image.charIndices && image.filenamePattern) {
+    filename = maskString(
+      filename,
+      image.charIndices,
+      image.filenamePattern
+    ) + '.jpg';
+  }
+  
+  const filePath = `${image.dir}/${filename}`;
   if (!existsSync(filePath)) { return; }
 
   return {
-    filename: fileName,
+    filename: filename,
     base64: readFileSync(filePath).toString('base64')
   };
 }
