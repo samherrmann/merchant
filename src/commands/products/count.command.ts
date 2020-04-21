@@ -1,7 +1,7 @@
 import { shopify } from '../../shopify/shopify';
-import { Command } from 'commander';
+import commander from 'commander';
 
-export function countCommand(cmd: Command): Command {
+export function countCommand(cmd: commander.Command) {
   return cmd.command('count')
     .description('Returns the total number of products')
     .action(() => {

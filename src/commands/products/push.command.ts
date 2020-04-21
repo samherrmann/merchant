@@ -1,12 +1,12 @@
 import { readProducts } from '../../files/read-products';
 import { progress } from '../../utils/progress';
-import { Command } from 'commander';
+import commander from 'commander';
 import { writeProducts } from '../../files/write-products';
 import { createProduct } from '../../shopify/create-product';
 import { readShopConfig } from '../../files/read-shop-config';
 import { readProductConfig } from '../../files/read-product-config';
 
-export function pushCommand(cmd: Command): Command {
+export function pushCommand(cmd: commander.Command) {
   return cmd.command('push')
     .description('Pushes all products to the store')
     .action(async () => {
