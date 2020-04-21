@@ -21,7 +21,7 @@ export function pushCommand(cmd: Command): Command {
         // exit if no new products exist.
         if (!products.length) {
           console.info(`All "${c.type}" products already exist in the store.`);
-          return;
+          continue;
         }
         await progress(
           `Adding "${c.type}" products to store:`,
