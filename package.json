@@ -1,6 +1,6 @@
 {
   "name": "shopctl",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "CLI to manage Shopify stores",
   "scripts": {
     "start": "rimraf lib && tsc -w",
