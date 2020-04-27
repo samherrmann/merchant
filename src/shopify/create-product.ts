@@ -96,7 +96,7 @@ export async function createProduct(p: Product, c: ProductConfig): Promise<IProd
     variants: [{
       inventory_management: 'shopify',
       weight: parseFloat(p.weight),
-      weight_unit: p.weightUnit || 'kg'
+      weight_unit: p.weight_unit || 'kg'
     }],
     images: [
       ...image ? [{

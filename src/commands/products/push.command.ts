@@ -17,7 +17,7 @@ export function pushCommand(cmd: commander.Command): commander.Command {
         // read the product configuration file.
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.
-        const products = readProducts(c.dataPath).filter(p => !p.shopifyId)
+        const products = readProducts(c.dataPath).filter(p => !p.shopify_id)
         // exit if no new products exist.
         if (!products.length) {
           console.info(`All "${c.type}" products already exist in the store.`);
@@ -30,7 +30,8 @@ export function pushCommand(cmd: commander.Command): commander.Command {
             // add the product to the store.
             const storeProduct = await createProduct(p, c);
             // save the store ID.
-            p.shopifyId = `${storeProduct.id}`;
+            /* eslint-disable @typescript-eslint/camelcase */
+            p.shopify_id = `${storeProduct.id}`;
           }
         );
         // write the products back to the file.
