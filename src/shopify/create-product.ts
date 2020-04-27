@@ -2,9 +2,10 @@ import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
 import Shopify, { IProduct } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
-import { existsSync, readFileSync } from 'fs-extra';
+import { existsSync } from 'fs-extra';
 import mustache from 'mustache';
 import { shopify } from './shopify';
+import sharp from 'sharp';
 
 // Override Mustache's escape function to not HTML-escape variables.
 mustache.escape = (text: string): string => text;
@@ -40,7 +41,7 @@ function createTitle(p: Product, c: ProductConfig): string {
 /**
  * Returns the base64 encoded image of the provided product.
  */
-function readImage(p: Product, c: ProductConfig): Image | undefined {
+async function readImage(p: Product, c: ProductConfig): Promise<Image | undefined> {
   const image = c.image;
   if (!(image && p[image.key])) { return; }
 
@@ -59,21 +60,31 @@ function readImage(p: Product, c: ProductConfig): Image | undefined {
   }
   
   const filePath = `${image.dir}/${filename}`;
+
+  // Check if file exists.
   if (!existsSync(filePath)) { return; }
+
+  // Read image file and resize if it's larger than maximum allowed size.
+  const fileBuffer = await sharp(filePath).resize({
+    withoutEnlargement: true,
+    fit: 'inside',
+    width: 4000,
+    height: 4000
+  }).toBuffer();
 
   return {
     filename: filename,
-    base64: readFileSync(filePath).toString('base64')
+    base64: fileBuffer.toString('base64')
   };
 }
 
 /**
  * Create a product in the Shopify store.
  */
-export function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
+export async function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
   const title = createTitle(p, c);
   const table = createSpecificationsTable(p, c);
-  const image = readImage(p, c);
+  const image = await readImage(p, c);
 
   /* eslint-disable @typescript-eslint/camelcase */
   const product: NewProduct = {
