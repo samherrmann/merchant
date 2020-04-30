@@ -2,10 +2,9 @@ import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
 import Shopify, { IProduct } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
-import { existsSync } from 'fs-extra';
 import mustache from 'mustache';
 import { shopify } from './shopify';
-import sharp from 'sharp';
+import { readImages } from '../files/read-image';
 
 // Override Mustache's escape function to not HTML-escape variables.
 mustache.escape = (text: string): string => text;
@@ -39,43 +38,27 @@ function createTitle(p: Product, c: ProductConfig): string {
 }
 
 /**
- * Returns the base64 encoded image of the provided product.
+ * Returns the image filenames based on the configuration.
  */
-async function readImage(p: Product, c: ProductConfig): Promise<Image | undefined> {
-  const image = c.image;
-  if (!(image && p[image.key])) { return; }
-
-  // By default, assign the value in the column defined by `image.key` as the
-  // image filename.
-  let filename = p[image.key];
-  // If the image configuration also defines a `charIndices` and a
-  // `filenamePattern` property, then mask the filename value using those
-  // properties.
-  if (image.charIndices && image.filenamePattern) {
-    filename = maskString(
-      filename,
-      image.charIndices,
-      image.filenamePattern
-    ) + '.jpg';
+function imageFilenames(p: Product, c: ProductConfig): string[] {
+  const imageConfig = c.image;
+  if (imageConfig && p[imageConfig.key]) {  
+    const filenames = p[imageConfig.key].split('|').map(fn => fn.trim());
+    return filenames.map(filename => {
+      // If the image configuration also defines a `charIndices` and a
+      // `filenamePattern` property, then mask the filename value using those
+      // properties.
+      if (imageConfig.charIndices && imageConfig.filenamePattern) {
+        filename = maskString(
+          filename,
+          imageConfig.charIndices,
+          imageConfig.filenamePattern
+        ) + '.jpg';
+      }
+      return `${imageConfig.dir}/${filename}`;
+    });
   }
-  
-  const filePath = `${image.dir}/${filename}`;
-
-  // Check if file exists.
-  if (!existsSync(filePath)) { return; }
-
-  // Read image file and resize if it's larger than maximum allowed size.
-  const fileBuffer = await sharp(filePath).resize({
-    withoutEnlargement: true,
-    fit: 'inside',
-    width: 4000,
-    height: 4000
-  }).toBuffer();
-
-  return {
-    filename: filename,
-    base64: fileBuffer.toString('base64')
-  };
+  return [];
 }
 
 /**
@@ -84,7 +67,7 @@ async function readImage(p: Product, c: ProductConfig): Promise<Image | undefine
 export async function createProduct(p: Product, c: ProductConfig): Promise<IProduct> {
   const title = createTitle(p, c);
   const table = createSpecificationsTable(p, c);
-  const image = await readImage(p, c);
+  const images = await readImages(imageFilenames(p, c));
 
   /* eslint-disable @typescript-eslint/camelcase */
   const product: NewProduct = {
@@ -98,12 +81,12 @@ export async function createProduct(p: Product, c: ProductConfig): Promise<IProd
       weight: parseFloat(p.weight),
       weight_unit: p.weight_unit || 'kg'
     }],
-    images: [
-      ...image ? [{
+    images: images.map(image => {
+      return {
         attachment: image.base64,
         filename: image.filename
-      }] : []
-    ]
+      };
+    })
   };
   /* eslint-enable @typescript-eslint/camelcase */
   return shopify.product.create(product);
