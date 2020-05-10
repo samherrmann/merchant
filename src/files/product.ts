@@ -1,9 +1,11 @@
 import { ProductVariantWeightUnit } from 'shopify-api-node';
 
 export type Product = {
-  shopify_id: string;
+  product_id: number;
+  variant_id: number;
   vendor: string;
   weight: string;
+  handle: string;
   weight_unit?: ProductVariantWeightUnit;
 } & {
   [specification: string]: string;

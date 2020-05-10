@@ -1,3 +1,5 @@
+import { ParameterConfig } from './parameter-config';
+
 export interface ProductConfig {
   /**
    * Type of products.
@@ -10,20 +12,7 @@ export interface ProductConfig {
   /**
    * Product specifications.
    */
-  specifications: {
-    /**
-     * The name of the key/column in the product data file.
-     */
-    key: string;
-    /**
-     * The user-visible label for the specification.
-     */
-    label: string;
-    /**
-     * The unit of measurement.
-     */
-    units?: string;
-  }[];
+  specifications: ParameterConfig[];
   /**
    * The product title. The title may be constructed from product data using
    * the following form:
@@ -58,4 +47,12 @@ export interface ProductConfig {
      */
     dir: string;
   };
+
+  weightKey?: string;
+
+  option1?: ParameterConfig;
+
+  option2?: ParameterConfig;
+
+  option3?: ParameterConfig;
 }

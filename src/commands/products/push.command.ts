@@ -5,6 +5,8 @@ import { writeProducts } from '../../files/write-products';
 import { createProduct } from '../../shopify/create-product';
 import { readShopConfig } from '../../files/read-shop-config';
 import { readProductConfig } from '../../files/read-product-config';
+import { groupArray } from '../../utils/group-array';
+import { flattenArray } from '../../utils/flatten-array';
 
 export function pushCommand(cmd: commander.Command): commander.Command {
   return cmd.command('push')
@@ -17,7 +19,7 @@ export function pushCommand(cmd: commander.Command): commander.Command {
         // read the product configuration file.
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.
-        const products = readProducts(c.dataPath).filter(p => !p.shopify_id)
+        const products = groupArray(readProducts(c.dataPath).filter(p => !p.product_id), p => p.handle);
         // exit if no new products exist.
         if (!products.length) {
           console.info(`All "${c.type}" products already exist in the store.`);
@@ -26,16 +28,19 @@ export function pushCommand(cmd: commander.Command): commander.Command {
         await progress(
           `Adding "${c.type}" products to store:`,
           products,
-          async p => {
+          async variants => {
             // add the product to the store.
-            const storeProduct = await createProduct(p, c);
+            const storeProduct = await createProduct(variants, c);
             // save the store ID.
-            /* eslint-disable @typescript-eslint/camelcase */
-            p.shopify_id = `${storeProduct.id}`;
+            storeProduct.variants.forEach((v, i) => {
+              /* eslint-disable @typescript-eslint/camelcase */
+              variants[i].product_id = storeProduct.id;
+              variants[i].variant_id = v.id;
+            })
           }
         );
         // write the products back to the file.
-        writeProducts(c.dataPath, products);
+        writeProducts(c.dataPath, flattenArray(products));
       }
     });
 }
