@@ -1,6 +1,6 @@
 import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
-import Shopify, { IProduct, IProductVariant } from 'shopify-api-node';
+import Shopify, { IProduct, IProductVariant, ICreateObjectMetafield } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
 import mustache from 'mustache';
 import { shopify } from './shopify';
@@ -9,6 +9,26 @@ import { ParameterConfig } from '../files/parameter-config';
 
 // Override Mustache's escape function to not HTML-escape variables.
 mustache.escape = (text: string): string => text;
+
+/**
+ * Returns specifications as metafields.
+ */
+function createMetafields(p: Product, c: ProductConfig): ICreateObjectMetafield[] {
+  return c.specifications.reduce<ICreateObjectMetafield[]>((prev, curr) => {
+    let label = curr.label;
+    if (curr.units) {
+      label = `${label} [${curr.units}]`;
+    }
+    prev.push({
+      key: label,
+      value: p[curr.key],
+      /* eslint-disable-next-line @typescript-eslint/camelcase */
+      value_type: 'string',
+      namespace: 'specifications'
+    });
+    return prev;
+  }, []);
+}
 
 /**
  * Returns the title for the provided product.
@@ -73,7 +93,8 @@ export async function createProduct(variants: Product[], c: ProductConfig): Prom
       const variant: NewProductVariant = {
         inventory_management: 'shopify',
         weight: parseFloat(v[c.weightKey || 'weight']),
-        weight_unit: v.weight_unit || 'kg'
+        weight_unit: v.weight_unit || 'kg',
+        metafields: createMetafields(v,c)
       };
       if (c.option1) {
         variant.option1 = v[c.option1.key]
@@ -113,4 +134,6 @@ type NewProduct = RecursivePartial<Shopify.IProduct & {
   }[];
 }>;
 
-type NewProductVariant = RecursivePartial<IProductVariant>
+type NewProductVariant = RecursivePartial<IProductVariant> & {
+  metafields: ICreateObjectMetafield[];
+}

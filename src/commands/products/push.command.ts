@@ -19,6 +19,7 @@ export function pushCommand(cmd: commander.Command): commander.Command {
         // read the product configuration file.
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.
+        // each product is an array of variants.
         const products = groupArray(readProducts(c.dataPath).filter(p => !p.product_id), p => p.handle);
         // exit if no new products exist.
         if (!products.length) {
