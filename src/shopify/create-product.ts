@@ -6,6 +6,7 @@ import mustache from 'mustache';
 import { shopify } from './shopify';
 import { readImages } from '../files/read-image';
 import { ParameterConfig } from '../files/parameter-config';
+import util from 'util';
 
 // Override Mustache's escape function to not HTML-escape variables.
 mustache.escape = (text: string): string => text;
@@ -115,7 +116,9 @@ export async function createProduct(variants: Product[], c: ProductConfig): Prom
     })
   };
   /* eslint-enable @typescript-eslint/camelcase */
-  return shopify.product.create(product);
+  return shopify.product.create(product).catch(err => {
+    throw util.inspect({ err, product }, false, null, true);
+  })
 }
 
 type RecursivePartial<T> = {

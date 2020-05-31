@@ -30,7 +30,10 @@ export function pushCommand(cmd: commander.Command): commander.Command {
           products,
           async variants => {
             // add the product to the store.
-            const storeProduct = await createProduct(variants, c);
+            const storeProduct = await createProduct(variants, c).catch(err => {
+              console.error(err)
+              process.exit();
+            });
             // save the store ID.
             storeProduct.variants.forEach((v, i) => {
               /* eslint-disable @typescript-eslint/camelcase */
