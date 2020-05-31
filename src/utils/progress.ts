@@ -9,14 +9,17 @@ import { Presets, Bar } from 'cli-progress';
 export async function progress<T>(
   label: string,
   taskList: T[],
-  forEach: (item: T) => void | Promise<void>
+  forEach: (item: T) => Promise<void>
 ): Promise<void> {
 
   console.info(label);
   const bar = new Bar({}, Presets.rect);
   bar.start(taskList.length, 0);
   for (const [index, item] of taskList.entries()) {
-    await forEach(item);
+    await forEach(item).catch(err => {
+      bar.stop();
+      throw err;
+    });
     bar.update(index + 1);
   }
   bar.stop();

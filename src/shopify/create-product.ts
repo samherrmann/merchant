@@ -1,6 +1,6 @@
 import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
-import Shopify, { IProduct, IProductVariant, ICreateObjectMetafield } from 'shopify-api-node';
+import { IProduct, IProductVariant, ICreateObjectMetafield } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
 import mustache from 'mustache';
 import { shopify } from './shopify';
@@ -76,6 +76,22 @@ function createOptions(c: ProductConfig): { name: string }[] {
 }
 
 /**
+ * Returns an array of any duplicate variants that may exist within the product.
+ * Returns an empty array if no duplicates exist.
+ */
+function duplicateVariants(p: NewProduct): [NewProductVariant, NewProductVariant][] {
+  const variants = p.variants || [];
+  const options = variants.map(v => (v?.option1 || '') + (v?.option2 || '') + (v?.option3 || ''));
+  return options.reduce<[NewProductVariant, NewProductVariant][]>((acc, curr, i) => {
+    const lastIndex = options.lastIndexOf(curr);
+    if (i !== lastIndex) {
+      acc.push([variants[i], variants[lastIndex]]);
+    }
+    return acc;
+  }, []);
+}
+
+/**
  * Create a product in the Shopify store.
  */
 export async function createProduct(variants: Product[], c: ProductConfig): Promise<IProduct> {
@@ -115,6 +131,12 @@ export async function createProduct(variants: Product[], c: ProductConfig): Prom
       };
     })
   };
+
+  const dups = duplicateVariants(product);
+  if (dups.length > 0) {
+    throw util.inspect({ duplicates: dups }, false, null, true);
+  }
+
   /* eslint-enable @typescript-eslint/camelcase */
   return shopify.product.create(product).catch(err => {
     throw util.inspect({ err, product }, false, null, true);
@@ -125,17 +147,18 @@ type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
-interface Image {
-  base64: string;
-  filename: string;
-}
-
-type NewProduct = RecursivePartial<Shopify.IProduct & {
+interface NewProduct {
+  title: string;
+  product_type: string;
+  vendor: string;
+  tags: string;
+  options: { name: string }[];
+  variants: NewProductVariant[];
   images: {
     attachment: string;
     filename: string;
   }[];
-}>;
+}
 
 type NewProductVariant = RecursivePartial<IProductVariant> & {
   metafields: ICreateObjectMetafield[];

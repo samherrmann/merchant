@@ -30,10 +30,7 @@ export function pushCommand(cmd: commander.Command): commander.Command {
           products,
           async variants => {
             // add the product to the store.
-            const storeProduct = await createProduct(variants, c).catch(err => {
-              console.error(err)
-              process.exit();
-            });
+            const storeProduct = await createProduct(variants, c);
             // save the store ID.
             storeProduct.variants.forEach((v, i) => {
               /* eslint-disable @typescript-eslint/camelcase */
@@ -41,7 +38,10 @@ export function pushCommand(cmd: commander.Command): commander.Command {
               variants[i].variant_id = v.id;
             })
           }
-        );
+        ).catch(err => {
+          console.error(err);
+          process.exit();
+        });
         // write the products back to the file.
         writeProducts(c.dataPath, flattenArray(products));
       }
