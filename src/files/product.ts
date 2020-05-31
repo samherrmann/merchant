@@ -5,7 +5,6 @@ export type Product = {
   variant_id: number;
   vendor: string;
   weight: string;
-  handle: string;
   weight_unit?: ProductVariantWeightUnit;
 } & {
   [specification: string]: string;

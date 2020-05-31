@@ -3,7 +3,7 @@
  * function returns `undefined` for an item, then that item is returned in its
  * own group. The order of the items is maintained.
  */
-export function groupArray<T>(arr: T[], groupKey: (obj: T) => string): T[][] {
+export function groupArray<T>(arr: T[], groupKey: (obj: T) => string | undefined): T[][] {
   const groups = arr.reduce((acc, curr, index) => {
     const key = groupKey(curr);
     if (key) {

@@ -5,7 +5,6 @@ import { writeProducts } from '../../files/write-products';
 import { createProduct } from '../../shopify/create-product';
 import { readShopConfig } from '../../files/read-shop-config';
 import { readProductConfig } from '../../files/read-product-config';
-import { groupArray } from '../../utils/group-array';
 import { flattenArray } from '../../utils/flatten-array';
 
 export function pushCommand(cmd: commander.Command): commander.Command {
@@ -20,7 +19,7 @@ export function pushCommand(cmd: commander.Command): commander.Command {
         const c = readProductConfig(path);
         // get products from file that don't already exist in store.
         // each product is an array of variants.
-        const products = groupArray(readProducts(c.dataPath).filter(p => !p.product_id), p => p.handle);
+        const products = readProducts(c, true);
         // exit if no new products exist.
         if (!products.length) {
           console.info(`All "${c.type}" products already exist in the store.`);
