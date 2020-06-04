@@ -54,9 +54,13 @@ function imageFilenames(p: Product, c: ProductConfig): string[] {
           filename,
           imageConfig.charIndices,
           imageConfig.filenamePattern
-        ) + '.jpg';
+        );
       }
-      return `${imageConfig.dir}/${filename}`;
+      let path = `${imageConfig.dir}/${filename}`;
+      if (!path.endsWith('.jpg')) {
+        path += '.jpg';
+      }
+      return path;
     });
   }
   return [];
