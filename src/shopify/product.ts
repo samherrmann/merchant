@@ -1,8 +1,5 @@
 import { IProductVariant, ICreateObjectMetafield } from 'shopify-api-node';
-
-type RecursivePartial<T> = {
-  [P in keyof T]?: RecursivePartial<T[P]>;
-};
+import { DeepPartial } from 'ts-essentials';
 
 export interface NewProduct {
   title: string;
@@ -18,6 +15,6 @@ export interface NewProduct {
   }[];
 }
 
-export type NewProductVariant = RecursivePartial<IProductVariant> & {
+export type NewProductVariant = DeepPartial<IProductVariant> & {
   metafields: ICreateObjectMetafield[];
 }
