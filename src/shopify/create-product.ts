@@ -62,9 +62,25 @@ function createSpecificationTable(product: Product, c: ProductConfig): string {
 
 /**
  * Returns an HTML specification table for each provided variant.
+ * If more than one variant is provided, then each table is wrapped
+ * in a `<template>` element with an element ID of the form
+ * `specification-option1-option2-option3-template`.
  */
 function createSpecificationTables(variants: Product[], config: ProductConfig): string[] {
-  return variants.map(v => createSpecificationTable(v, config));
+  return variants.map(v => {
+    const table = createSpecificationTable(v, config);
+    const options = [];
+    if (config.option1) {
+      options.push(v[config.option1.key]);
+    }
+    if (config.option2) {
+      options.push(v[config.option2.key]);
+    }
+    if (config.option3) {
+      options.push(v[config.option3.key]);
+    }
+    return `<template id="specification-${options.join('-')}-template">${table}</template>`
+  });
 }
 
 /**
