@@ -1,11 +1,11 @@
-import { readProducts } from '../../files/read-products';
-import { progress } from '../../utils/progress';
+import { readProducts } from '../files/read-products';
+import { progress } from '../utils/progress';
 import commander from 'commander';
-import { writeProducts } from '../../files/write-products';
-import { createProduct } from '../../shopify/create-product';
-import { readShopConfig } from '../../files/read-shop-config';
-import { readProductConfig } from '../../files/read-product-config';
-import { flattenArray } from '../../utils/flatten-array';
+import { writeProducts } from '../files/write-products';
+import { createProduct } from '../shopify/product.create';
+import { readShopConfig } from '../files/read-shop-config';
+import { readProductConfig } from '../files/read-product-config';
+import { flattenArray } from '../utils/flatten-array';
 
 export function pushCommand(cmd: commander.Command): commander.Command {
   return cmd.command('push')

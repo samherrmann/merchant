@@ -1,5 +1,5 @@
 import commander from 'commander';
-import { listProducts } from '../../shopify/list-products';
+import { listProducts } from '../shopify/product.list';
 
 export function listCommand(cmd: commander.Command): commander.Command {
   return cmd.command('list')

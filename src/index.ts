@@ -16,5 +16,5 @@ dotenv.config();
 
 // Parse command
 program
-  .command('products', 'Operate on products', { executableFile: 'commands/products/index' })
+  .command('products', 'Operate on products', { executableFile: 'commands/product' })
   .parse(process.argv);

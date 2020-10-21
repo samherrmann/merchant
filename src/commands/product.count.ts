@@ -1,4 +1,4 @@
-import { shopify } from '../../shopify/shopify';
+import { shopify } from '../shopify/shopify';
 import commander from 'commander';
 
 export function countCommand(cmd: commander.Command): commander.Command {
