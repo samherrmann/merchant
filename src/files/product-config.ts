@@ -50,6 +50,8 @@ export interface ProductConfig {
 
   weightKey?: string;
 
+  skuKey: string;
+
   option1?: ParameterConfig;
 
   option2?: ParameterConfig;

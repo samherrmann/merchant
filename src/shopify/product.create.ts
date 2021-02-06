@@ -157,6 +157,7 @@ export async function createProduct(variants: Product[], config: ProductConfig):
     options: createOptions(config),
     variants: variants.map(v => {
       const variant: NewProductVariant = {
+        sku: v[config.skuKey],
         inventory_management: 'shopify',
         weight: parseFloat(v[config.weightKey || 'weight']),
         weight_unit: v.weight_unit || 'kg',
