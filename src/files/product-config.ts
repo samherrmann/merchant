@@ -52,6 +52,8 @@ export interface ProductConfig {
 
   skuKey: string;
 
+  barcodeKey: string;
+
   option1?: ParameterConfig;
 
   option2?: ParameterConfig;
