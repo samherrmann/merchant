@@ -1,6 +1,6 @@
 import { ProductConfig } from '../files/product-config';
 import { Product } from '../files/product';
-import { IProduct, ICreateObjectMetafield } from 'shopify-api-node';
+import { IProduct, ICreateObjectMetafield, ProductVariantWeightUnit } from 'shopify-api-node';
 import { maskString } from '../utils/mask-string';
 import mustache from 'mustache';
 import { shopify } from './shopify';
@@ -157,12 +157,13 @@ export async function createProduct(variants: Product[], config: ProductConfig):
     options: createOptions(config),
     variants: variants.map(v => {
       const variant: NewProductVariant = {
-        sku: v[config.skuKey],
-        barcode: v[config.barcodeKey],
+        sku: v[config.skuKey || 'sku'],
+        barcode: v[config.barcodeKey || 'barcode'],
         inventory_management: 'shopify',
         weight: parseFloat(v[config.weightKey || 'weight']),
-        weight_unit: v.weight_unit || 'kg',
-        metafields: createMetafields(v,config)
+        weight_unit: v[config.weightUnitKey || 'weight_unit'] as ProductVariantWeightUnit || 'kg',
+        metafields: createMetafields(v,config),
+        price: v[config.priceKey || 'price']
       };
       if (config.option1) {
         variant.option1 = v[config.option1.key]
