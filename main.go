@@ -12,24 +12,41 @@ import (
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 )
 
+const (
+	cacheFilename = "products.json"
+)
+
 func main() {
-	config, err := loadConfig()
+	config, err := readConfig()
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	client := newClient(config)
 
-	products, err := getProductsWithMetafields(client)
+	products, err := readCache()
 	if err != nil {
-		log.Fatalln(err)
-	}
-
-	if err := writeJSONFile(products); err != nil {
-		log.Fatalln(err)
+		// Get products from store if failed to read from cache.
+		products, err = getProductsWithMetafields(client)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		if err := writeCache(products); err != nil {
+			log.Fatalln(err)
+		}
 	}
 
 	log.Println("Export was successful! :)")
+}
+
+// TODO remove
+func sampleProductMetafieldCreate(client *goshopify.Client) (*goshopify.Metafield, error) {
+	return client.Product.CreateMetafield(6573170753578, goshopify.Metafield{
+		Key:       "box_per_carton",
+		Value:     123,
+		ValueType: "integer",
+		Namespace: "common",
+	})
 }
 
 func newClient(c *Config) *goshopify.Client {
@@ -44,7 +61,7 @@ func newClient(c *Config) *goshopify.Client {
 	)
 }
 
-func loadConfig() (*Config, error) {
+func readConfig() (*Config, error) {
 	configFilename := "goshopctl.json"
 
 	bytes, err := ioutil.ReadFile(configFilename)
@@ -100,12 +117,24 @@ func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, e
 	return products, nil
 }
 
-func writeJSONFile(products []goshopify.Product) error {
+func readCache() ([]goshopify.Product, error) {
+	bytes, err := ioutil.ReadFile(cacheFilename)
+	if err != nil {
+		return nil, err
+	}
+	products := []goshopify.Product{}
+	if err = json.Unmarshal(bytes, &products); err != nil {
+		return nil, err
+	}
+	return nil, err
+}
+
+func writeCache(products []goshopify.Product) error {
 	bytes, err := json.Marshal(products)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile("products.json", bytes, 0644); err != nil {
+	if err := ioutil.WriteFile(cacheFilename, bytes, 0644); err != nil {
 		return err
 	}
 	return nil
@@ -168,6 +197,7 @@ type Config struct {
 }
 
 type Row struct {
-	ProductID int64
-	variantID int64
+	ProductID  int64
+	variantID  int64
+	Metafields map[string]string
 }
