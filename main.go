@@ -13,28 +13,53 @@ import (
 )
 
 func main() {
-	envFilename := "goshopctl.json"
-
-	bytes, err := ioutil.ReadFile(envFilename)
+	config, err := loadConfig()
 	if err != nil {
-		log.Fatalf("Error reading %v: %v\n", envFilename, err)
+		log.Fatalln(err)
+	}
+
+	client := newClient(config)
+
+	products, err := getProductsWithMetafields(client)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := writeJSONFile(products); err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println("Export was successful! :)")
+}
+
+func newClient(c *Config) *goshopify.Client {
+	return goshopify.NewClient(
+		goshopify.App{
+			ApiKey:   c.APIKey,
+			Password: c.Password,
+		},
+		c.ShopName,
+		"",
+		goshopify.WithRetry(3),
+	)
+}
+
+func loadConfig() (*Config, error) {
+	configFilename := "goshopctl.json"
+
+	bytes, err := ioutil.ReadFile(configFilename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %v: %w", configFilename, err)
 	}
 
 	config := &Config{}
 	if err := json.Unmarshal(bytes, config); err != nil {
-		log.Fatalf("Error parsing %v: %v", envFilename, err)
+		return nil, fmt.Errorf("failed to parse %v: %w", configFilename, err)
 	}
+	return config, nil
+}
 
-	client := goshopify.NewClient(
-		goshopify.App{
-			ApiKey:   config.APIKey,
-			Password: config.Password,
-		},
-		config.ShopName,
-		"",
-		goshopify.WithRetry(3),
-	)
-
+func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, error) {
 	products := []goshopify.Product{}
 	options := &goshopify.ListOptions{
 		// 250 is the maximum limit
@@ -44,14 +69,14 @@ func main() {
 	for {
 		productsPacket, pagination, err := client.Product.ListWithPagination(options)
 		if err != nil {
-			log.Fatalf("Error getting list of products: %v\n", err)
+			return nil, fmt.Errorf("failed to get packet of products: %w", err)
 		}
 
 		for i, product := range productsPacket {
 			log.Printf("Getting metafields for product %v\n", product.ID)
 			metafields, err := client.Product.ListMetafields(product.ID, nil)
 			if err != nil {
-				log.Fatalf("Error getting metafields for product %v: %v", product.ID, err)
+				return nil, fmt.Errorf("failed to get metafields for product %v: %w", product.ID, err)
 			}
 			productsPacket[i].Metafields = metafields
 
@@ -59,7 +84,7 @@ func main() {
 				log.Printf("Getting metafields for variant %v\n", variant.ID)
 				metafields, err := client.Variant.ListMetafields(variant.ID, nil)
 				if err != nil {
-					log.Fatalf("Error getting metafields for variant %v: %v", variant.ID, err)
+					return nil, fmt.Errorf("failed to get metafields for variant %v: %w", variant.ID, err)
 				}
 				productsPacket[i].Variants[j].Metafields = metafields
 			}
@@ -72,11 +97,7 @@ func main() {
 		options = pagination.NextPageOptions
 	}
 
-	if err := writeJSONFile(products); err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Println("Export was successful! :)")
+	return products, nil
 }
 
 func writeJSONFile(products []goshopify.Product) error {
@@ -144,4 +165,9 @@ type Config struct {
 	ShopName string `json:"shopName"`
 	APIKey   string `json:"apiKey"`
 	Password string `json:"password"`
+}
+
+type Row struct {
+	ProductID int64
+	variantID int64
 }
