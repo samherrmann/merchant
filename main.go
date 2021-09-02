@@ -1,19 +1,18 @@
 package main
 
 import (
-	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
-	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
+	"github.com/jszwec/csvutil"
 )
 
 const (
 	cacheFilename = "products.json"
+	csvFilename   = "metafields.csv"
 )
 
 func main() {
@@ -34,6 +33,12 @@ func main() {
 		if err := writeCache(products); err != nil {
 			log.Fatalln(err)
 		}
+	}
+
+	rows := convertProductsToCSVRows(products)
+
+	if err := writeCSVFile(rows); err != nil {
+		log.Fatalln(err)
 	}
 
 	log.Println("Export was successful! :)")
@@ -126,7 +131,7 @@ func readCache() ([]goshopify.Product, error) {
 	if err = json.Unmarshal(bytes, &products); err != nil {
 		return nil, err
 	}
-	return nil, err
+	return products, err
 }
 
 func writeCache(products []goshopify.Product) error {
@@ -140,53 +145,38 @@ func writeCache(products []goshopify.Product) error {
 	return nil
 }
 
-func writeCSVFile(products []goshopify.Product) {
-	productsFilename := "products.csv"
-
-	productsFile, err := os.OpenFile(productsFilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+func writeCSVFile(rows []CSVRow) error {
+	bytes, err := csvutil.Marshal(rows)
 	if err != nil {
-		log.Fatalf("Error opening %v: %v", productsFilename, err)
+		return fmt.Errorf("error encoding to CSV: %w", err)
 	}
-	defer productsFile.Close()
 
-	csvWriter := csv.NewWriter(productsFile)
+	return ioutil.WriteFile(csvFilename, bytes, 0644)
+}
 
-	header := []string{
-		"id",
-		// "handle",
-		// "title",
-		// "vendor",
-		// "body_html",
-		// "product_type",
-		// "tags",
-		// Options                        []ProductOption `json:"options,omitempty"`,
-		// Variants                       []Variant       `json:"variants,omitempty"`,
-		// Image                          Image           `json:"image,omitempty"`,
-		// Images                         []Image         `json:"images,omitempty"`,
-		// TemplateSuffix                 string          `json:"template_suffix,omitempty"`,
-		// MetafieldsGlobalTitleTag       string          `json:"metafields_global_title_tag,omitempty"`,
-		// MetafieldsGlobalDescriptionTag string          `json:"metafields_global_description_tag,omitempty"`,
-		"metafields",
-	}
-	csvWriter.Write(header)
-
+func convertProductsToCSVRows(products []goshopify.Product) []CSVRow {
+	rows := []CSVRow{}
 	for _, p := range products {
-		row := []string{
-			fmt.Sprintf("%q", strconv.FormatInt(p.ID, 10)),
-			// fmt.Sprintf("%q", p.Handle),
-			// fmt.Sprintf("%q", p.Title),
-			// fmt.Sprintf("%q", p.Vendor),
-			// fmt.Sprintf("%q", p.BodyHTML),
-			// fmt.Sprintf("%q", p.ProductType),
-			// fmt.Sprintf("%q", p.Tags),
-			fmt.Sprintf("%q", p.Metafields),
+		for _, m := range p.Metafields {
+			rows = append(rows, convertMetafieldToCSVRow(p.ID, 0, m))
 		}
-		csvWriter.Write(row)
-	}
 
-	csvWriter.Flush()
-	if err := csvWriter.Error(); err != nil {
-		log.Fatalf("CSV write error: %v", err)
+		for _, v := range p.Variants {
+			for _, m := range p.Metafields {
+				rows = append(rows, convertMetafieldToCSVRow(p.ID, v.ID, m))
+			}
+		}
+	}
+	return rows
+}
+
+func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshopify.Metafield) CSVRow {
+	return CSVRow{
+		ProductID:      productID,
+		VariantID:      variantID,
+		MetafiledID:    metafield.ID,
+		MetafieldKey:   metafield.Key,
+		MetafieldValue: metafield.Value,
 	}
 }
 
@@ -196,8 +186,10 @@ type Config struct {
 	Password string `json:"password"`
 }
 
-type Row struct {
-	ProductID  int64
-	variantID  int64
-	Metafields map[string]string
+type CSVRow struct {
+	ProductID      int64       `csv:"product_id"`
+	VariantID      int64       `csv:"variant_id,omitempty"`
+	MetafiledID    int64       `csv:"metafiled_id"`
+	MetafieldKey   string      `csv:"metafield_key"`
+	MetafieldValue interface{} `csv:"metafield_value"`
 }
