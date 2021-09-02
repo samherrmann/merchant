@@ -35,9 +35,12 @@ func main() {
 		}
 	}
 
-	rows := convertProductsToCSVRows(products)
+	csvRows, err := convertProductsToCSVRows(products)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	if err := writeCSVFile(rows); err != nil {
+	if err := writeCSVFile(csvRows); err != nil {
 		log.Fatalln(err)
 	}
 
@@ -154,30 +157,49 @@ func writeCSVFile(rows []CSVRow) error {
 	return ioutil.WriteFile(csvFilename, bytes, 0644)
 }
 
-func convertProductsToCSVRows(products []goshopify.Product) []CSVRow {
+func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
 	rows := []CSVRow{}
 	for _, p := range products {
 		for _, m := range p.Metafields {
-			rows = append(rows, convertMetafieldToCSVRow(p.ID, 0, m))
+			row, err := convertMetafieldToCSVRow(p.ID, 0, m)
+			if err != nil {
+				return nil, err
+			}
+			rows = append(rows, *row)
 		}
 
 		for _, v := range p.Variants {
 			for _, m := range p.Metafields {
-				rows = append(rows, convertMetafieldToCSVRow(p.ID, v.ID, m))
+				row, err := convertMetafieldToCSVRow(p.ID, v.ID, m)
+				if err != nil {
+					return nil, err
+				}
+				rows = append(rows, *row)
 			}
 		}
 	}
-	return rows
+	return rows, nil
 }
 
-func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshopify.Metafield) CSVRow {
-	return CSVRow{
+func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshopify.Metafield) (*CSVRow, error) {
+	row := &CSVRow{
 		ProductID:      productID,
 		VariantID:      variantID,
 		MetafiledID:    metafield.ID,
 		MetafieldKey:   metafield.Key,
 		MetafieldValue: metafield.Value,
 	}
+
+	if metafield.ValueType == "json_string" {
+		measurement := &Measurement{}
+		if err := json.Unmarshal([]byte(fmt.Sprint(metafield.Value)), measurement); err != nil {
+			return nil, fmt.Errorf("error unmarshaling metafield JSON string: %w", err)
+		}
+		row.MetafieldValue = measurement.Value
+		row.MetafieldUnit = measurement.Unit
+	}
+
+	return row, nil
 }
 
 type Config struct {
@@ -192,4 +214,10 @@ type CSVRow struct {
 	MetafiledID    int64       `csv:"metafiled_id"`
 	MetafieldKey   string      `csv:"metafield_key"`
 	MetafieldValue interface{} `csv:"metafield_value"`
+	MetafieldUnit  string      `csv:"metafield_unit,omitempty"`
+}
+
+type Measurement struct {
+	Value float64 `json:"value"`
+	Unit  string  `json:"unit"`
 }
