@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
+	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/spf13/cobra"
@@ -15,22 +15,46 @@ func init() {
 }
 
 var pullCmd = &cobra.Command{
-	Use:   "pull",
+	Use:   "pull [product ID]",
 	Short: "Fetch products and their metadata from the store",
-	Args:  cobra.MinimumNArgs(0),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		products, err := getProductsWithMetafields(shopClient)
+		// Get all products if no product ID is provided.
+		if len(args) == 0 {
+			products, err := getProductsWithMetafields()
+			if err != nil {
+				return err
+			}
+			if err := writeProductsFile(products); err != nil {
+				return err
+			}
+			return nil
+		}
+		// Get product for ID given as argument.
+		productID, err := strconv.ParseInt(args[0], 10, 64)
 		if err != nil {
 			return err
 		}
-		if err := writeProductsFile(products); err != nil {
+		product, err := getProductWithMetafields(productID)
+		if err != nil {
 			return err
 		}
-		return nil
+		return writeProductFile(product)
 	},
 }
 
-func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, error) {
+func getProductWithMetafields(id int64) (*goshopify.Product, error) {
+	product, err := shopClient.Product.Get(id, nil)
+	if err != nil {
+		return nil, err
+	}
+	if err := attachMetafields(product); err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+
+func getProductsWithMetafields() ([]goshopify.Product, error) {
 	products := []goshopify.Product{}
 	options := &goshopify.ListOptions{
 		// 250 is the maximum limit
@@ -38,27 +62,18 @@ func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, e
 		Limit: 250,
 	}
 	for {
-		productsPacket, pagination, err := client.Product.ListWithPagination(options)
+		productsPacket, pagination, err := shopClient.Product.ListWithPagination(options)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get packet of products: %w", err)
 		}
 
 		for i, product := range productsPacket {
-			log.Printf("Getting metafields for product %v\n", product.ID)
-			metafields, err := client.Product.ListMetafields(product.ID, nil)
-			if err != nil {
-				return nil, fmt.Errorf("failed to get metafields for product %v: %w", product.ID, err)
+			fmt.Printf("Getting metafields for product %v\n", product.ID)
+			if err := attachMetafields(&product); err != nil {
+				return nil, err
 			}
-			productsPacket[i].Metafields = metafields
-
-			for j, variant := range product.Variants {
-				log.Printf("Getting metafields for variant %v\n", variant.ID)
-				metafields, err := client.Variant.ListMetafields(variant.ID, nil)
-				if err != nil {
-					return nil, fmt.Errorf("failed to get metafields for variant %v: %w", variant.ID, err)
-				}
-				productsPacket[i].Variants[j].Metafields = metafields
-			}
+			// TODO check if this is necessary.
+			productsPacket[i] = product
 		}
 
 		products = append(products, productsPacket...)
@@ -67,8 +82,33 @@ func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, e
 		}
 		options = pagination.NextPageOptions
 	}
-
 	return products, nil
+}
+
+// attachMetafields fetches and attaches all metafields for the given product and its variants.
+func attachMetafields(product *goshopify.Product) error {
+	metafields, err := shopClient.Product.ListMetafields(product.ID, nil)
+	if err != nil {
+		return fmt.Errorf("failed to get metafields for product %v: %w", product.ID, err)
+	}
+	product.Metafields = metafields
+
+	for j, variant := range product.Variants {
+		metafields, err := shopClient.Variant.ListMetafields(variant.ID, nil)
+		if err != nil {
+			return fmt.Errorf("failed to get metafields for variant %v: %w", variant.ID, err)
+		}
+		product.Variants[j].Metafields = metafields
+	}
+	return nil
+}
+
+func writeProductFile(product *goshopify.Product) error {
+	bytes, err := json.Marshal(product)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(fmt.Sprintf("%v.json", product.ID), bytes, 0644)
 }
 
 func writeProductsFile(products []goshopify.Product) error {
