@@ -6,6 +6,6 @@ replace github.com/bold-commerce/go-shopify/v3 => github.com/samherrmann/go-shop
 
 require (
 	github.com/bold-commerce/go-shopify/v3 v3.11.0
-	github.com/jszwec/csvutil v1.5.1 // indirect
-	github.com/spf13/cobra v1.2.1 // indirect
+	github.com/jszwec/csvutil v1.5.1
+	github.com/spf13/cobra v1.2.1
 )

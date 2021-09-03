@@ -7,37 +7,23 @@ import (
 	"log"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/jszwec/csvutil"
 	"github.com/spf13/cobra"
 )
 
 func init() {
-	rootCmd.AddCommand(cmdPull)
+	rootCmd.AddCommand(pullCmd)
 }
 
-var cmdPull = &cobra.Command{
+var pullCmd = &cobra.Command{
 	Use:   "pull",
 	Short: "Fetch products and their metadata from the store",
 	Args:  cobra.MinimumNArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		products, err := readCache()
-		if err != nil {
-			// Get products from store if failed to read from cache.
-			products, err = getProductsWithMetafields(shopClient)
-			if err != nil {
-				return err
-			}
-			if err := writeCache(products); err != nil {
-				return err
-			}
-		}
-
-		csvRows, err := convertProductsToCSVRows(products)
+		products, err := getProductsWithMetafields(shopClient)
 		if err != nil {
 			return err
 		}
-
-		if err := writeCSVFile(csvRows); err != nil {
+		if err := writeProductsFile(products); err != nil {
 			return err
 		}
 		return nil
@@ -85,93 +71,10 @@ func getProductsWithMetafields(client *goshopify.Client) ([]goshopify.Product, e
 	return products, nil
 }
 
-func readCache() ([]goshopify.Product, error) {
-	bytes, err := ioutil.ReadFile(cacheFilename)
-	if err != nil {
-		return nil, err
-	}
-	products := []goshopify.Product{}
-	if err = json.Unmarshal(bytes, &products); err != nil {
-		return nil, err
-	}
-	return products, err
-}
-
-func writeCache(products []goshopify.Product) error {
+func writeProductsFile(products []goshopify.Product) error {
 	bytes, err := json.Marshal(products)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(cacheFilename, bytes, 0644); err != nil {
-		return err
-	}
-	return nil
-}
-
-func writeCSVFile(rows []CSVRow) error {
-	bytes, err := csvutil.Marshal(rows)
-	if err != nil {
-		return fmt.Errorf("error encoding to CSV: %w", err)
-	}
-
-	return ioutil.WriteFile(csvFilename, bytes, 0644)
-}
-
-func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
-	rows := []CSVRow{}
-	for _, p := range products {
-		for _, m := range p.Metafields {
-			row, err := convertMetafieldToCSVRow(p.ID, 0, m)
-			if err != nil {
-				return nil, err
-			}
-			rows = append(rows, *row)
-		}
-
-		for _, v := range p.Variants {
-			for _, m := range p.Metafields {
-				row, err := convertMetafieldToCSVRow(p.ID, v.ID, m)
-				if err != nil {
-					return nil, err
-				}
-				rows = append(rows, *row)
-			}
-		}
-	}
-	return rows, nil
-}
-
-func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshopify.Metafield) (*CSVRow, error) {
-	row := &CSVRow{
-		ProductID:      productID,
-		VariantID:      variantID,
-		MetafiledID:    metafield.ID,
-		MetafieldKey:   metafield.Key,
-		MetafieldValue: metafield.Value,
-	}
-
-	if metafield.ValueType == "json_string" {
-		measurement := &Measurement{}
-		if err := json.Unmarshal([]byte(fmt.Sprint(metafield.Value)), measurement); err != nil {
-			return nil, fmt.Errorf("error unmarshaling metafield JSON string: %w", err)
-		}
-		row.MetafieldValue = measurement.Value
-		row.MetafieldUnit = measurement.Unit
-	}
-
-	return row, nil
-}
-
-type CSVRow struct {
-	ProductID      int64       `csv:"product_id"`
-	VariantID      int64       `csv:"variant_id,omitempty"`
-	MetafiledID    int64       `csv:"metafiled_id"`
-	MetafieldKey   string      `csv:"metafield_key"`
-	MetafieldValue interface{} `csv:"metafield_value"`
-	MetafieldUnit  string      `csv:"metafield_unit,omitempty"`
-}
-
-type Measurement struct {
-	Value float64 `json:"value"`
-	Unit  string  `json:"unit"`
+	return ioutil.WriteFile(productsFilename, bytes, 0644)
 }

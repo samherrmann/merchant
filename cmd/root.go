@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	cacheFilename = "products.json"
-	csvFilename   = "metafields.csv"
-	rootCmd       = &cobra.Command{}
-	shopClient    *goshopify.Client
+	productsFilename = "products.json"
+	csvFilename      = "metafields.csv"
+	rootCmd          = &cobra.Command{}
+	shopClient       *goshopify.Client
 )
 
 func Execute() error {
