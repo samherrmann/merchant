@@ -16,7 +16,7 @@ func init() {
 
 var csvCmd = &cobra.Command{
 	Use:   "csv",
-	Short: "Generates a CSV file from a products file.",
+	Short: "Generates a CSV file for one or all products.",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		products := []goshopify.Product{}
 		if len(args) == 0 {
@@ -57,7 +57,7 @@ func readProductFile(id int64) (*goshopify.Product, error) {
 }
 
 func readProductsFile() ([]goshopify.Product, error) {
-	bytes, err := ioutil.ReadFile(productsFilename)
+	bytes, err := ioutil.ReadFile(cacheFilename)
 	if err != nil {
 		return nil, err
 	}
