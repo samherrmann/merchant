@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/spf13/cobra"
@@ -25,13 +24,10 @@ var pullCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			if err := writeProductsFile(products); err != nil {
-				return err
-			}
-			return nil
+			return writeProductsFile(products)
 		}
 		// Get product for ID given as argument.
-		productID, err := strconv.ParseInt(args[0], 10, 64)
+		productID, err := parseID(args[0])
 		if err != nil {
 			return err
 		}

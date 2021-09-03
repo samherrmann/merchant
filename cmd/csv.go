@@ -18,9 +18,23 @@ var csvCmd = &cobra.Command{
 	Use:   "csv",
 	Short: "Generates a CSV file from a products file.",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		products, err := readProductsFile()
-		if err != nil {
-			return err
+		products := []goshopify.Product{}
+		if len(args) == 0 {
+			var err error
+			products, err = readProductsFile()
+			if err != nil {
+				return err
+			}
+		} else {
+			productID, err := parseID(args[0])
+			if err != nil {
+				return err
+			}
+			product, err := readProductFile(productID)
+			if err != nil {
+				return err
+			}
+			products = append(products, *product)
 		}
 		csvRows, err := convertProductsToCSVRows(products)
 		if err != nil {
@@ -28,6 +42,18 @@ var csvCmd = &cobra.Command{
 		}
 		return writeCSVFile(csvRows)
 	},
+}
+
+func readProductFile(id int64) (*goshopify.Product, error) {
+	bytes, err := ioutil.ReadFile(fmt.Sprintf("%v.json", id))
+	if err != nil {
+		return nil, err
+	}
+	products := &goshopify.Product{}
+	if err = json.Unmarshal(bytes, products); err != nil {
+		return nil, err
+	}
+	return products, nil
 }
 
 func readProductsFile() ([]goshopify.Product, error) {
@@ -39,7 +65,7 @@ func readProductsFile() ([]goshopify.Product, error) {
 	if err = json.Unmarshal(bytes, &products); err != nil {
 		return nil, err
 	}
-	return products, err
+	return products, nil
 }
 
 func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {

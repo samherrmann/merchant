@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/spf13/cobra"
@@ -50,6 +51,10 @@ func readConfig() (*Config, error) {
 		return nil, fmt.Errorf("failed to parse %v: %w", configFilename, err)
 	}
 	return config, nil
+}
+
+func parseID(id string) (int64, error) {
+	return strconv.ParseInt(id, 10, 64)
 }
 
 type Config struct {
