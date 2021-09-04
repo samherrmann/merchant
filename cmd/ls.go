@@ -14,7 +14,7 @@ func init() {
 
 var lsCmd = &cobra.Command{
 	Use:   "ls",
-	Short: "List files in cache.",
+	Short: "List files in cache",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		dir, err := cacheDir()
 		if err != nil {

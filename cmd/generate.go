@@ -9,5 +9,5 @@ func init() {
 var generateCmd = &cobra.Command{
 	Use:     "generate",
 	Aliases: []string{"g"},
-	Short:   "Generates files as defines by sub-command.",
+	Short:   "Generates files as defines by sub-command",
 }

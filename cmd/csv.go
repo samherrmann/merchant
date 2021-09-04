@@ -16,7 +16,7 @@ func init() {
 
 var csvCmd = &cobra.Command{
 	Use:   "csv",
-	Short: "Generates a CSV file for one or all products.",
+	Short: "Generates a CSV file for one or all products",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		products := []goshopify.Product{}
 		if len(args) == 0 {
