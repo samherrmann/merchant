@@ -104,14 +104,22 @@ func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshop
 	}
 
 	if metafield.ValueType == "json_string" {
-		measurement := &Measurement{}
-		if err := json.Unmarshal([]byte(fmt.Sprint(metafield.Value)), measurement); err != nil {
+		measurement, err := unmarshalMeasurement([]byte(fmt.Sprint(metafield.Value)))
+		if err != nil {
 			return nil, fmt.Errorf("error unmarshaling metafield JSON string: %w", err)
 		}
 		row.MetafieldValue = measurement.Value
 		row.MetafieldUnit = measurement.Unit
 	}
 	return row, nil
+}
+
+func unmarshalMeasurement(bytes []byte) (*Measurement, error) {
+	measurement := &Measurement{}
+	if err := json.Unmarshal(bytes, measurement); err != nil {
+		return nil, err
+	}
+	return measurement, nil
 }
 
 func writeCSVFile(filename string, rows []CSVRow) error {
