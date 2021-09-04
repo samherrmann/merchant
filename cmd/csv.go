@@ -45,7 +45,7 @@ var csvCmd = &cobra.Command{
 }
 
 func readProductFile(id int64) (*goshopify.Product, error) {
-	bytes, err := ioutil.ReadFile(fmt.Sprintf("%v.json", id))
+	bytes, err := readCacheFile(fmt.Sprintf("%v.json", id))
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func readProductFile(id int64) (*goshopify.Product, error) {
 }
 
 func readProductsFile() ([]goshopify.Product, error) {
-	bytes, err := ioutil.ReadFile(cacheFilename)
+	bytes, err := readCacheFile(cacheFilename)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,6 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/spf13/cobra"
@@ -104,7 +103,7 @@ func writeProductFile(product *goshopify.Product) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(fmt.Sprintf("%v.json", product.ID), bytes, 0644)
+	return writeCacheFile(fmt.Sprintf("%v.json", product.ID), bytes)
 }
 
 func writeProductsFile(products []goshopify.Product) error {
@@ -112,5 +111,5 @@ func writeProductsFile(products []goshopify.Product) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(cacheFilename, bytes, 0644)
+	return writeCacheFile(cacheFilename, bytes)
 }
