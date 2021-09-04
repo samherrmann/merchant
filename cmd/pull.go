@@ -13,7 +13,7 @@ func init() {
 }
 
 var pullCmd = &cobra.Command{
-	Use:   "pull [product ID]",
+	Use:   "pull [<productid>]",
 	Short: "Fetch products and their metadata from the store",
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
