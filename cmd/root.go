@@ -42,7 +42,7 @@ func newClient(c *Config) *goshopify.Client {
 }
 
 func readConfig() (*Config, error) {
-	configFilename := "goshopctl.json"
+	configFilename := "shopctl.json"
 
 	bytes, err := ioutil.ReadFile(configFilename)
 	if err != nil {
