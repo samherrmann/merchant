@@ -73,7 +73,7 @@ func writeCacheFile(filename string, data []byte) error {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err
 	}
-	return os.WriteFile(filename, data, 0644)
+	return os.WriteFile(path, data, 0644)
 }
 
 func readCacheFile(filename string) ([]byte, error) {
