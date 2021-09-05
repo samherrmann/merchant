@@ -111,5 +111,5 @@ func writeProductsFile(products []goshopify.Product) error {
 	if err != nil {
 		return err
 	}
-	return writeCacheFile(cacheFilename, bytes)
+	return writeCacheFile(defaultCacheFilename, bytes)
 }

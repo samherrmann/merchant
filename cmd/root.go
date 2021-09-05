@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	appName       = "shopctl"
-	cacheFilename = "products.json"
-	csvFilename   = "products.csv"
-	rootCmd       = &cobra.Command{}
-	shopClient    *goshopify.Client
+	appName              = "shopctl"
+	defaultCacheFilename = "products.json"
+	defaultCSVFilename   = "products.csv"
+	rootCmd              = &cobra.Command{}
+	shopClient           *goshopify.Client
 )
 
 func Execute() error {

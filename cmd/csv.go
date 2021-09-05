@@ -19,6 +19,7 @@ var csvCmd = &cobra.Command{
 	Short: "Generates a CSV file for one or all products",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		products := []goshopify.Product{}
+		filename := defaultCSVFilename
 		if len(args) == 0 {
 			var err error
 			products, err = readProductsFile()
@@ -35,12 +36,13 @@ var csvCmd = &cobra.Command{
 				return err
 			}
 			products = append(products, *product)
+			filename = fmt.Sprintf("%v.csv", productID)
 		}
 		csvRows, err := convertProductsToCSVRows(products)
 		if err != nil {
 			return err
 		}
-		return writeCSVFile(csvRows)
+		return writeCSVFile(filename, csvRows)
 	},
 }
 
@@ -57,7 +59,7 @@ func readProductFile(id int64) (*goshopify.Product, error) {
 }
 
 func readProductsFile() ([]goshopify.Product, error) {
-	bytes, err := readCacheFile(cacheFilename)
+	bytes, err := readCacheFile(defaultCacheFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +114,12 @@ func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshop
 	return row, nil
 }
 
-func writeCSVFile(rows []CSVRow) error {
+func writeCSVFile(filename string, rows []CSVRow) error {
 	bytes, err := csvutil.Marshal(rows)
 	if err != nil {
 		return fmt.Errorf("error encoding to CSV: %w", err)
 	}
-	return ioutil.WriteFile(csvFilename, bytes, 0644)
+	return ioutil.WriteFile(filename, bytes, 0644)
 }
 
 type CSVRow struct {
