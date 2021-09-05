@@ -99,7 +99,7 @@ func attachMetafields(product *goshopify.Product) error {
 }
 
 func writeProductFile(product *goshopify.Product) error {
-	bytes, err := json.Marshal(product)
+	bytes, err := json.MarshalIndent(product, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func writeProductFile(product *goshopify.Product) error {
 }
 
 func writeProductsFile(products []goshopify.Product) error {
-	bytes, err := json.Marshal(products)
+	bytes, err := json.MarshalIndent(products, "", "  ")
 	if err != nil {
 		return err
 	}
