@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(lsCmd)
+	cacheCmd.AddCommand(lsCmd)
 }
 
 var lsCmd = &cobra.Command{
