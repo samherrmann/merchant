@@ -18,6 +18,7 @@ var (
 	defaultCSVFilename   = "products.csv"
 	rootCmd              = &cobra.Command{}
 	shopClient           *goshopify.Client
+	metafieldDefinitions *MetafieldDefinitions
 )
 
 func Execute() error {
@@ -25,6 +26,7 @@ func Execute() error {
 	if err != nil {
 		return err
 	}
+	metafieldDefinitions = &config.MetafieldDefinitions
 	shopClient = newClient(config)
 	return rootCmd.Execute()
 }
@@ -94,7 +96,17 @@ func cacheDir() (string, error) {
 }
 
 type Config struct {
-	ShopName string `json:"shopName"`
-	APIKey   string `json:"apiKey"`
-	Password string `json:"password"`
+	ShopName             string               `json:"shopName"`
+	APIKey               string               `json:"apiKey"`
+	Password             string               `json:"password"`
+	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
+}
+
+type MetafieldDefinitions struct {
+	Product []MetafieldDefinition `json:"product"`
+	Variant []MetafieldDefinition `json:"variant"`
+}
+
+type MetafieldDefinition struct {
+	Key string `json:"key"`
 }

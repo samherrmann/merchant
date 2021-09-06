@@ -73,28 +73,49 @@ func readProductsFile() ([]goshopify.Product, error) {
 func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
 	rows := []CSVRow{}
 	for _, p := range products {
+		productRows := makeCSVRowsFromDefinitions(p.ID, 0, metafieldDefinitions.Product)
 		for _, m := range p.Metafields {
-			row, err := convertMetafieldToCSVRow(p.ID, 0, &m)
+			row, err := makeCSVRowFromMetafield(p.ID, 0, &m)
 			if err != nil {
 				return nil, err
 			}
-			rows = append(rows, *row)
+			productRows[row.MetafieldKey] = *row
+		}
+		for _, row := range productRows {
+			rows = append(rows, row)
 		}
 
 		for _, v := range p.Variants {
+			variantRows := makeCSVRowsFromDefinitions(p.ID, v.ID, metafieldDefinitions.Variant)
 			for _, m := range v.Metafields {
-				row, err := convertMetafieldToCSVRow(p.ID, v.ID, &m)
+				row, err := makeCSVRowFromMetafield(p.ID, v.ID, &m)
 				if err != nil {
 					return nil, err
 				}
-				rows = append(rows, *row)
+				variantRows[row.MetafieldKey] = *row
+			}
+			for _, row := range variantRows {
+				rows = append(rows, row)
 			}
 		}
 	}
 	return rows, nil
 }
 
-func convertMetafieldToCSVRow(productID int64, variantID int64, metafield *goshopify.Metafield) (*CSVRow, error) {
+func makeCSVRowsFromDefinitions(productID int64, variantID int64, definitions []MetafieldDefinition) CSVRows {
+	rows := map[string]CSVRow{}
+	for _, def := range definitions {
+		row := CSVRow{
+			ProductID:    productID,
+			VariantID:    variantID,
+			MetafieldKey: def.Key,
+		}
+		rows[def.Key] = row
+	}
+	return rows
+}
+
+func makeCSVRowFromMetafield(productID int64, variantID int64, metafield *goshopify.Metafield) (*CSVRow, error) {
 	row := &CSVRow{
 		ProductID:      productID,
 		VariantID:      variantID,
@@ -133,11 +154,15 @@ func writeCSVFile(filename string, rows []CSVRow) error {
 type CSVRow struct {
 	ProductID      int64       `csv:"product_id"`
 	VariantID      int64       `csv:"variant_id,omitempty"`
-	MetafiledID    int64       `csv:"metafiled_id"`
+	MetafiledID    int64       `csv:"metafiled_id,omitempty"`
 	MetafieldKey   string      `csv:"metafield_key"`
 	MetafieldValue interface{} `csv:"metafield_value"`
 	MetafieldUnit  string      `csv:"metafield_unit,omitempty"`
 }
+
+type MetafieldKey = string
+
+type CSVRows = map[MetafieldKey]CSVRow
 
 type Measurement struct {
 	Value float64 `json:"value"`
