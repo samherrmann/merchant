@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os/exec"
 	"path/filepath"
 
@@ -20,7 +21,7 @@ var openCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return runVSCode(filepath.Join(dir, args[0]))
+		return runVSCode(filepath.Join(dir, fmt.Sprintf("%v.json", args[0])))
 	},
 }
 
