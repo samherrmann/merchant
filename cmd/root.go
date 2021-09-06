@@ -102,6 +102,10 @@ type Config struct {
 	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
 }
 
+// MetafieldDefinitions At the time of writing, metafield definitions are not
+// available via the REST Admin API. In the meantime, the user must define the
+// metafield definitions in the shopctl.json file.
+// https://shopify.dev/apps/metafields/definitions#structure-of-a-metafield-definition
 type MetafieldDefinitions struct {
 	Product []MetafieldDefinition `json:"product"`
 	Variant []MetafieldDefinition `json:"variant"`
