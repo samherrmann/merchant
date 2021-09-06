@@ -72,7 +72,7 @@ func createMetafield(service goshopify.MetafieldsService, definitions []Metafiel
 	}
 	var definition *MetafieldDefinition
 	for _, def := range definitions {
-		if row.MetafieldKey == def.Key {
+		if row.MetafieldNamespace == def.Namespace && row.MetafieldKey == def.Key {
 			definition = &def
 		}
 	}

@@ -106,9 +106,10 @@ func makeCSVRowsFromDefinitions(productID int64, variantID int64, definitions []
 	rows := map[string]CSVRow{}
 	for _, def := range definitions {
 		row := CSVRow{
-			ProductID:    productID,
-			VariantID:    variantID,
-			MetafieldKey: def.Key,
+			ProductID:          productID,
+			VariantID:          variantID,
+			MetafieldKey:       def.Key,
+			MetafieldNamespace: def.Namespace,
 		}
 		rows[def.Key] = row
 	}
@@ -117,11 +118,12 @@ func makeCSVRowsFromDefinitions(productID int64, variantID int64, definitions []
 
 func makeCSVRowFromMetafield(productID int64, variantID int64, metafield *goshopify.Metafield) (*CSVRow, error) {
 	row := &CSVRow{
-		ProductID:      productID,
-		VariantID:      variantID,
-		MetafiledID:    metafield.ID,
-		MetafieldKey:   metafield.Key,
-		MetafieldValue: metafield.Value,
+		ProductID:          productID,
+		VariantID:          variantID,
+		MetafiledID:        metafield.ID,
+		MetafieldKey:       metafield.Key,
+		MetafieldNamespace: metafield.Namespace,
+		MetafieldValue:     metafield.Value,
 	}
 
 	if metafield.ValueType == "json_string" {
@@ -152,12 +154,13 @@ func writeCSVFile(filename string, rows []CSVRow) error {
 }
 
 type CSVRow struct {
-	ProductID      int64       `csv:"product_id"`
-	VariantID      int64       `csv:"variant_id,omitempty"`
-	MetafiledID    int64       `csv:"metafiled_id,omitempty"`
-	MetafieldKey   string      `csv:"metafield_key"`
-	MetafieldValue interface{} `csv:"metafield_value"`
-	MetafieldUnit  string      `csv:"metafield_unit,omitempty"`
+	ProductID          int64       `csv:"product_id"`
+	VariantID          int64       `csv:"variant_id,omitempty"`
+	MetafiledID        int64       `csv:"metafiled_id,omitempty"`
+	MetafieldKey       string      `csv:"metafield_key"`
+	MetafieldNamespace string      `csv:"metafield_namespace"`
+	MetafieldValue     interface{} `csv:"metafield_value"`
+	MetafieldUnit      string      `csv:"metafield_unit,omitempty"`
 }
 
 type MetafieldKey = string
