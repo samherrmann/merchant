@@ -31,23 +31,23 @@ var pushCmd = &cobra.Command{
 					if _, err := createMetafield(shopClient.Product, &row); err != nil {
 						return fmt.Errorf("cannot create metafield for product %v: %w", row.ProductID, err)
 					}
-					break
+					continue
 				}
 				if _, err := updateMetafield(shopClient.Product, &row); err != nil {
 					return fmt.Errorf("cannot update metafield %v for product %v: %w", row.MetafiledID, row.ProductID, err)
 				}
-				break
+				continue
 			}
 			if isNewMetafield {
 				if _, err := createMetafield(shopClient.Variant, &row); err != nil {
 					return fmt.Errorf("cannot create metafield for variant %v: %w", row.VariantID, err)
 				}
-				break
+				continue
 			}
 			if _, err := updateMetafield(shopClient.Variant, &row); err != nil {
 				return fmt.Errorf("cannot update metafield %v for variant %v: %w", row.MetafiledID, row.VariantID, err)
 			}
-			break
+			continue
 		}
 		return nil
 	},
