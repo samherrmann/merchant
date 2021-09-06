@@ -70,7 +70,7 @@ func createMetafield(service goshopify.MetafieldsService, row *CSVRow) (*goshopi
 	if err != nil {
 		return nil, err
 	}
-	return service.UpdateMetafield(row.VariantID, goshopify.Metafield{
+	return service.CreateMetafield(row.VariantID, goshopify.Metafield{
 		Key:   row.MetafieldKey,
 		Value: value,
 	})
