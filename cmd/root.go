@@ -112,5 +112,7 @@ type MetafieldDefinitions struct {
 }
 
 type MetafieldDefinition struct {
-	Key string `json:"key"`
+	Key       string `json:"key"`
+	Type      string `json:"type"`
+	Namespace string `json:"namespace"`
 }

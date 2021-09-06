@@ -28,7 +28,7 @@ var pushCmd = &cobra.Command{
 			isNewMetafield := row.MetafiledID == 0
 			if isProductMetafield {
 				if isNewMetafield {
-					if _, err := createMetafield(shopClient.Product, &row); err != nil {
+					if _, err := createMetafield(shopClient.Product, metafieldDefinitions.Product, &row); err != nil {
 						return fmt.Errorf("cannot create metafield for product %v: %w", row.ProductID, err)
 					}
 					continue
@@ -39,7 +39,7 @@ var pushCmd = &cobra.Command{
 				continue
 			}
 			if isNewMetafield {
-				if _, err := createMetafield(shopClient.Variant, &row); err != nil {
+				if _, err := createMetafield(shopClient.Variant, metafieldDefinitions.Variant, &row); err != nil {
 					return fmt.Errorf("cannot create metafield for variant %v: %w", row.VariantID, err)
 				}
 				continue
@@ -65,14 +65,25 @@ func readCSVFile(filename string) ([]CSVRow, error) {
 	return rows, nil
 }
 
-func createMetafield(service goshopify.MetafieldsService, row *CSVRow) (*goshopify.Metafield, error) {
+func createMetafield(service goshopify.MetafieldsService, definitions []MetafieldDefinition, row *CSVRow) (*goshopify.Metafield, error) {
 	value, err := marshalValue(row)
 	if err != nil {
 		return nil, err
 	}
+	var definition *MetafieldDefinition
+	for _, def := range definitions {
+		if row.MetafieldKey == def.Key {
+			definition = &def
+		}
+	}
+	if definition == nil {
+		return nil, fmt.Errorf("cannot find definition for metafiled key %v", row.MetafieldKey)
+	}
 	return service.CreateMetafield(row.VariantID, goshopify.Metafield{
-		Key:   row.MetafieldKey,
-		Value: value,
+		Key:       row.MetafieldKey,
+		Value:     value,
+		ValueType: definition.Type,
+		Namespace: definition.Namespace,
 	})
 }
 
