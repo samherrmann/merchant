@@ -74,7 +74,7 @@ func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
 	rows := []CSVRow{}
 	for _, p := range products {
 		for _, m := range p.Metafields {
-			row, err := convertMetafieldToCSVRow(p.ID, 0, m)
+			row, err := convertMetafieldToCSVRow(p.ID, 0, &m)
 			if err != nil {
 				return nil, err
 			}
@@ -82,8 +82,8 @@ func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
 		}
 
 		for _, v := range p.Variants {
-			for _, m := range p.Metafields {
-				row, err := convertMetafieldToCSVRow(p.ID, v.ID, m)
+			for _, m := range v.Metafields {
+				row, err := convertMetafieldToCSVRow(p.ID, v.ID, &m)
 				if err != nil {
 					return nil, err
 				}
@@ -94,7 +94,7 @@ func convertProductsToCSVRows(products []goshopify.Product) ([]CSVRow, error) {
 	return rows, nil
 }
 
-func convertMetafieldToCSVRow(productID int64, variantID int64, metafield goshopify.Metafield) (*CSVRow, error) {
+func convertMetafieldToCSVRow(productID int64, variantID int64, metafield *goshopify.Metafield) (*CSVRow, error) {
 	row := &CSVRow{
 		ProductID:      productID,
 		VariantID:      variantID,
