@@ -65,17 +65,6 @@ func readCSVFile(filename string) ([]CSVRow, error) {
 	return rows, nil
 }
 
-func createProductMetafield(row *CSVRow) (*goshopify.Metafield, error) {
-	value, err := marshalValue(row)
-	if err != nil {
-		return nil, err
-	}
-	return shopClient.Product.CreateMetafield(row.ProductID, goshopify.Metafield{
-		Key:   row.MetafieldKey,
-		Value: value,
-	})
-}
-
 func createMetafield(service goshopify.MetafieldsService, row *CSVRow) (*goshopify.Metafield, error) {
 	value, err := marshalValue(row)
 	if err != nil {
