@@ -46,7 +46,12 @@ func newClient(c *Config) *goshopify.Client {
 func readConfig() (*Config, error) {
 	configFilename := "shopctl.json"
 
-	bytes, err := ioutil.ReadFile(configFilename)
+	dir, err := configDir()
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := ioutil.ReadFile(filepath.Join(dir, configFilename))
 	if err != nil {
 		return nil, fmt.Errorf("failed to read %v: %w", configFilename, err)
 	}
@@ -69,7 +74,7 @@ func writeCacheFile(filename string, data []byte) error {
 	}
 	// We first join the filename with the cache directory and then call
 	// filepath.Dir so that if filename includes a directory that doen't exist
-	// yet that we can create it before writing the file.
+	// yet then we can create it before writing the file.
 	path := filepath.Join(dir, filename)
 	dir = filepath.Dir(path)
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
@@ -92,7 +97,23 @@ func cacheDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, appName), nil
+	dir = filepath.Join(dir, appName)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+func configDir() (string, error) {
+	dir, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	dir = filepath.Join(dir, appName)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return "", err
+	}
+	return dir, nil
 }
 
 type Config struct {
