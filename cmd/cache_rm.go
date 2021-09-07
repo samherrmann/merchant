@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -20,6 +21,6 @@ var rmCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return os.Remove(filepath.Join(dir, args[0]))
+		return os.Remove(filepath.Join(dir, fmt.Sprintf("%v.json", args[0])))
 	},
 }
