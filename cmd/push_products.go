@@ -10,10 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductPushCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
+func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "push <filename>",
-		Short: "Update products in the store with data in CSV file",
+		Use:   "products <filename>",
+		Short: "Update products in store with data from CSV file",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			rows, err := csv.ReadFile(args[0] + ".csv")

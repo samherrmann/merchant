@@ -5,6 +5,6 @@ import "github.com/spf13/cobra"
 func newConfigCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "config",
-		Short: "Operate on configuration file",
+		Short: "Manage configuration file",
 	}
 }

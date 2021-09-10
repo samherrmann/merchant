@@ -24,16 +24,21 @@ func Execute() error {
 	configCmd.AddCommand(
 		newConfigOpenCommand(),
 	)
-	productCmd := newProductCommand()
-	productCmd.AddCommand(
-		newProductPullCommand(shopClient, &c.MetafieldDefinitions),
-		newProductPushCommand(shopClient, &c.MetafieldDefinitions),
+	pullCmd := newPullCommand()
+	pullCmd.AddCommand(
+		newPullProductCommand(shopClient, &c.MetafieldDefinitions),
+		newPullProductsCommand(shopClient, &c.MetafieldDefinitions),
+	)
+	pushCmd := newPushCommand()
+	pushCmd.AddCommand(
+		newPushProductsCommand(shopClient, &c.MetafieldDefinitions),
 	)
 	rootCmd := &cobra.Command{}
 	rootCmd.AddCommand(
 		cacheCmd,
 		configCmd,
-		productCmd,
+		pullCmd,
+		pushCmd,
 	)
 	return rootCmd.Execute()
 }

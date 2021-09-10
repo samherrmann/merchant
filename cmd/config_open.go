@@ -11,7 +11,7 @@ import (
 func newConfigOpenCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "open",
-		Short: "Open config file in Visual Studio Code",
+		Short: "Open configuration file in Visual Studio Code",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			dir, err := config.Dir()
 			if err != nil {
