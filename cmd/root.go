@@ -1,139 +1,39 @@
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strconv"
-
-	goshopify "github.com/bold-commerce/go-shopify/v3"
+	"github.com/samherrmann/goshopctl/config"
+	"github.com/samherrmann/goshopctl/shop"
 	"github.com/spf13/cobra"
 )
 
-var (
-	appName              = "shopctl"
-	defaultCacheFilename = "products.json"
-	defaultCSVFilename   = "products.csv"
-	rootCmd              = &cobra.Command{}
-	shopClient           *goshopify.Client
-	metafieldDefinitions *MetafieldDefinitions
-)
-
 func Execute() error {
-	config, err := readConfig()
+	c, err := config.Load()
 	if err != nil {
 		return err
 	}
-	metafieldDefinitions = &config.MetafieldDefinitions
-	shopClient = newClient(config)
-	return rootCmd.Execute()
-}
 
-func newClient(c *Config) *goshopify.Client {
-	return goshopify.NewClient(
-		goshopify.App{
-			ApiKey:   c.APIKey,
-			Password: c.Password,
-		},
-		c.ShopName,
-		"",
-		goshopify.WithRetry(3),
+	shopClient := shop.NewClient(c)
+
+	cacheCmd := newCacheCommand()
+	cacheCmd.AddCommand(
+		newCacheListCommand(),
+		newCacheOpenCommand(),
+		newCacheRemoveCommand(),
 	)
-}
-
-func readConfig() (*Config, error) {
-	configFilename := "shopctl.json"
-
-	dir, err := configDir()
-	if err != nil {
-		return nil, err
-	}
-
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, configFilename))
-	if err != nil {
-		return nil, fmt.Errorf("failed to read %v: %w", configFilename, err)
-	}
-
-	config := &Config{}
-	if err := json.Unmarshal(bytes, config); err != nil {
-		return nil, fmt.Errorf("failed to parse %v: %w", configFilename, err)
-	}
-	return config, nil
-}
-
-func parseID(id string) (int64, error) {
-	return strconv.ParseInt(id, 10, 64)
-}
-
-func writeCacheFile(filename string, data []byte) error {
-	dir, err := cacheDir()
-	if err != nil {
-		return err
-	}
-	// We first join the filename with the cache directory and then call
-	// filepath.Dir so that if filename includes a directory that doen't exist
-	// yet then we can create it before writing the file.
-	path := filepath.Join(dir, filename)
-	dir = filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
-	return os.WriteFile(path, data, 0644)
-}
-
-func readCacheFile(filename string) ([]byte, error) {
-	dir, err := cacheDir()
-	if err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, filename)
-	return os.ReadFile(path)
-}
-
-func cacheDir() (string, error) {
-	dir, err := os.UserCacheDir()
-	if err != nil {
-		return "", err
-	}
-	dir = filepath.Join(dir, appName)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return "", err
-	}
-	return dir, nil
-}
-
-func configDir() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	dir = filepath.Join(dir, appName)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return "", err
-	}
-	return dir, nil
-}
-
-type Config struct {
-	ShopName             string               `json:"shopName"`
-	APIKey               string               `json:"apiKey"`
-	Password             string               `json:"password"`
-	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
-}
-
-// MetafieldDefinitions At the time of writing, metafield definitions are not
-// available via the REST Admin API. In the meantime, the user must define the
-// metafield definitions in the shopctl.json file.
-// https://shopify.dev/apps/metafields/definitions#structure-of-a-metafield-definition
-type MetafieldDefinitions struct {
-	Product []MetafieldDefinition `json:"product"`
-	Variant []MetafieldDefinition `json:"variant"`
-}
-
-type MetafieldDefinition struct {
-	Key       string `json:"key"`
-	Type      string `json:"type"`
-	Namespace string `json:"namespace"`
+	configCmd := newConfigCommand()
+	configCmd.AddCommand(
+		newConfigOpenCommand(),
+	)
+	productCmd := newProductCommand()
+	productCmd.AddCommand(
+		newProductPullCommand(shopClient, &c.MetafieldDefinitions),
+		newProductPushCommand(shopClient, &c.MetafieldDefinitions),
+	)
+	rootCmd := &cobra.Command{}
+	rootCmd.AddCommand(
+		cacheCmd,
+		configCmd,
+		productCmd,
+	)
+	return rootCmd.Execute()
 }

@@ -2,11 +2,9 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func init() {
-	rootCmd.AddCommand(configCmd)
-}
-
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Operate on configuration file",
+func newConfigCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "config",
+		Short: "Operate on configuration file",
+	}
 }
