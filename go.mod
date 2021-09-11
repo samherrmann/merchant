@@ -1,4 +1,4 @@
-module github.com/samherrmann/goshopctl
+module github.com/samherrmann/shopctl
 
 go 1.16
 

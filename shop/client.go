@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/goshopctl/config"
+	"github.com/samherrmann/shopctl/config"
 )
 
 type Client struct {

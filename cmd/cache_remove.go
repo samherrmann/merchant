@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samherrmann/goshopctl/cache"
+	"github.com/samherrmann/shopctl/cache"
 	"github.com/spf13/cobra"
 )
 

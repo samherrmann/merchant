@@ -3,8 +3,8 @@ package cmd
 import (
 	"path/filepath"
 
-	"github.com/samherrmann/goshopctl/cache"
-	"github.com/samherrmann/goshopctl/utils"
+	"github.com/samherrmann/shopctl/cache"
+	"github.com/samherrmann/shopctl/utils"
 	"github.com/spf13/cobra"
 )
 

@@ -8,8 +8,8 @@ import (
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/jszwec/csvutil"
-	"github.com/samherrmann/goshopctl/config"
-	"github.com/samherrmann/goshopctl/shop"
+	"github.com/samherrmann/shopctl/config"
+	"github.com/samherrmann/shopctl/shop"
 )
 
 type Row struct {

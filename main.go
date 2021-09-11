@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/samherrmann/goshopctl/cmd"
+	"github.com/samherrmann/shopctl/cmd"
 )
 
 func main() {

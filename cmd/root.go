@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/samherrmann/goshopctl/config"
-	"github.com/samherrmann/goshopctl/shop"
+	"github.com/samherrmann/shopctl/config"
+	"github.com/samherrmann/shopctl/shop"
 	"github.com/spf13/cobra"
 )
 

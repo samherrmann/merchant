@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/samherrmann/goshopctl/cache"
+	"github.com/samherrmann/shopctl/cache"
 	"github.com/spf13/cobra"
 )
 
