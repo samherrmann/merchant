@@ -8,10 +8,8 @@ build:
 	mkdir -p $(dist) && go build -ldflags "-X $(module)/cmd.Version=$(version)" -o $(dist) .
 
 build.all:
-	@export GOOS=linux && export GOARCH=386 && make build && make tar
 	@export GOOS=linux && export GOARCH=amd64 && make build && make tar
 	@export GOOS=windows && export GOARCH=amd64 && make build && make zip
-	@export GOOS=windows && export GOARCH=386 && make build && make zip
 
 test:
 	@go test ./... -cover
