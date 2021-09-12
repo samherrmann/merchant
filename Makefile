@@ -1,23 +1,30 @@
-
-gobuild = mkdir -p dist/$$GOOS-$$GOARCH && go build -o dist/$$GOOS-$$GOARCH .
-tar = (cd dist && tar -czvf $$GOOS-$$GOARCH.tar.gz $$GOOS-$$GOARCH/*)
-zip = (cd dist && zip -r $$GOOS-$$GOARCH.zip $$GOOS-$$GOARCH/*)
+SHELL = /bin/bash
+module = github.com/samherrmann/shopctl
+version = $(shell git rev-parse --short HEAD)$(shell [[ -z $$(git status -s) ]] || echo "-dirty")
+target = $(shell go env GOOS)-$(shell go env GOARCH)
+dist = dist/$(target)
 
 build:
-	mkdir -p dist && go build -o dist .
+	mkdir -p $(dist) && go build -ldflags "-X $(module)/cmd.Version=$(version)" -o $(dist) .
 
-build.all: 
-	export GOOS=linux; export GOARCH=386; $(gobuild) && $(tar)
-	export GOOS=linux; export GOARCH=amd64; $(gobuild) && $(tar)
-	export GOOS=windows; export GOARCH=amd64; $(gobuild) && $(zip)
-	export GOOS=windows; export GOARCH=386; $(gobuild) && $(zip)
+build.all:
+	@export GOOS=linux && export GOARCH=386 && make build && make tar
+	@export GOOS=linux && export GOARCH=amd64 && make build && make tar
+	@export GOOS=windows && export GOARCH=amd64 && make build && make zip
+	@export GOOS=windows && export GOARCH=386 && make build && make zip
 
 test:
-	go test ./... -cover
+	@go test ./... -cover
 
 clean:
-	rm -rf dist
+	@rm -rf dist
+
+tar:
+	@cd dist && tar -czvf $(target).tar.gz $(target)/*
+
+zip:
+	@cd dist && zip -r $(target).zip $(target)/*
 
 # Resources:
-# List of available target OSs and architectures: 
+# List of available target OSs and architectures:
 # https://golang.org/doc/install/source#environment
