@@ -1,5 +1,6 @@
 SHELL = /bin/bash
-module = github.com/samherrmann/shopctl
+name = shopctl
+module = github.com/samherrmann/$(name)
 version = $(shell git rev-parse --short HEAD)$(shell [[ -z $$(git status -s) ]] || echo "-dirty")
 target = $(shell go env GOOS)-$(shell go env GOARCH)
 dist = dist/$(target)
@@ -18,10 +19,10 @@ clean:
 	@rm -rf dist
 
 tar:
-	@cd dist && tar -czvf $(target).tar.gz $(target)/*
+	@cd $(dist) && tar -czvf ../$(name)-$(target).tar.gz *
 
 zip:
-	@cd dist && zip -r $(target).zip $(target)/*
+	@cd $(dist) && zip -r ../$(name)-$(target).zip *
 
 # Resources:
 # List of available target OSs and architectures:
