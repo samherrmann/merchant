@@ -26,7 +26,12 @@ func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 				if isProductMetafield {
 					if isNewMetafield {
 						if _, err := createMetafield(shopClient.Product, metafieldDefs.Product, &row); err != nil {
-							return fmt.Errorf("cannot create metafield for product %v: %w", row.ProductID, err)
+							return fmt.Errorf(
+								"cannot create metafield %q for product %v: %w",
+								fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
+								row.ProductID,
+								err,
+							)
 						}
 						continue
 					}
@@ -37,7 +42,12 @@ func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 				}
 				if isNewMetafield {
 					if _, err := createMetafield(shopClient.Variant, metafieldDefs.Variant, &row); err != nil {
-						return fmt.Errorf("cannot create metafield for variant %v: %w", row.VariantID, err)
+						return fmt.Errorf(
+							"cannot create metafield %q for variant %v: %w",
+							fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
+							row.VariantID,
+							err,
+						)
 					}
 					continue
 				}
@@ -58,13 +68,16 @@ func createMetafield(service goshopify.MetafieldsService, definitions []config.M
 	}
 	definition := config.FindMetafieldDefinition(definitions, row.MetafieldNamespace, row.MetafieldKey)
 	if definition == nil {
-		return nil, fmt.Errorf("cannot find definition for metafiled key %v", row.MetafieldKey)
+		return nil, fmt.Errorf(
+			"cannot find definition for metafield key %q",
+			fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
+		)
 	}
 	return service.CreateMetafield(row.VariantID, goshopify.Metafield{
-		Key:       row.MetafieldKey,
-		Value:     value,
-		ValueType: definition.Type,
 		Namespace: definition.Namespace,
+		Key:       row.MetafieldKey,
+		ValueType: definition.Type,
+		Value:     value,
 	})
 }
 
