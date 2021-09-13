@@ -84,7 +84,7 @@ func createMetafield(service goshopify.MetafieldsService, definitions []config.M
 		return nil, fmt.Errorf("unknown metafield service")
 	}
 	metafield := goshopify.Metafield{
-		Namespace: definition.Namespace,
+		Namespace: row.MetafieldNamespace,
 		Key:       row.MetafieldKey,
 		ValueType: definition.Type,
 		Value:     value,
