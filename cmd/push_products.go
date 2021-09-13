@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
@@ -8,6 +9,10 @@ import (
 	"github.com/samherrmann/shopctl/csv"
 	"github.com/samherrmann/shopctl/shop"
 	"github.com/spf13/cobra"
+)
+
+var (
+	errEmpty = errors.New("value and unit are empty")
 )
 
 func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
@@ -25,7 +30,11 @@ func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 				isNewMetafield := row.MetafiledID == 0
 				if isProductMetafield {
 					if isNewMetafield {
-						if _, err := createMetafield(shopClient.Product, metafieldDefs.Product, &row); err != nil {
+						_, err := createMetafield(shopClient.Product, metafieldDefs.Product, &row)
+						if err == errEmpty {
+							continue
+						}
+						if err != nil {
 							return fmt.Errorf(
 								"cannot create metafield %q for product %v: %w",
 								fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
@@ -41,7 +50,11 @@ func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 					continue
 				}
 				if isNewMetafield {
-					if _, err := createMetafield(shopClient.Variant, metafieldDefs.Variant, &row); err != nil {
+					_, err := createMetafield(shopClient.Variant, metafieldDefs.Variant, &row)
+					if err == errEmpty {
+						continue
+					}
+					if err != nil {
 						return fmt.Errorf(
 							"cannot create metafield %q for variant %v: %w",
 							fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
@@ -62,6 +75,10 @@ func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 }
 
 func createMetafield(service goshopify.MetafieldsService, definitions []config.MetafieldDefinition, row *csv.Row) (*goshopify.Metafield, error) {
+	// Do nothing if metafield value and unit are empty.
+	if row.MetafieldValue == "" && row.MetafieldUnit == "" {
+		return nil, errEmpty
+	}
 	value, err := csv.ParseMetafieldValue(row)
 	if err != nil {
 		return nil, err
