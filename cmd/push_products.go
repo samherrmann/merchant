@@ -73,12 +73,25 @@ func createMetafield(service goshopify.MetafieldsService, definitions []config.M
 			fmt.Sprintf("%v.%v", row.MetafieldNamespace, row.MetafieldKey),
 		)
 	}
-	return service.CreateMetafield(row.VariantID, goshopify.Metafield{
-		Namespace: definition.Namespace,
-		Key:       row.MetafieldKey,
-		ValueType: definition.Type,
-		Value:     value,
-	})
+	// Select product/variant ID based on seervice type.
+	var id int64
+	switch service.(type) {
+	case *goshopify.ProductServiceOp:
+		id = row.ProductID
+	case *goshopify.VariantServiceOp:
+		id = row.VariantID
+	default:
+		return nil, fmt.Errorf("unknown metafield service")
+	}
+	return service.CreateMetafield(
+		id,
+		goshopify.Metafield{
+			Namespace: definition.Namespace,
+			Key:       row.MetafieldKey,
+			ValueType: definition.Type,
+			Value:     value,
+		},
+	)
 }
 
 func updateMetafield(service goshopify.MetafieldsService, row *csv.Row) (*goshopify.Metafield, error) {
