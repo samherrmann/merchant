@@ -15,34 +15,26 @@ import (
 func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	var skipCache *bool
 	cmd := &cobra.Command{
-		Use:   "product <id>",
+		Use:   "product <id>|inventory",
 		Short: "Fetch product and its metadata from store",
+		Long:  "Fetch a single product or the entire product inventory from the store. The product metafields are included.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Get product for ID given as argument.
-			productID, err := utils.ParseID(args[0])
-			if err != nil {
-				return err
-			}
-			var product *goshopify.Product
-			if *skipCache {
-				// Ignore cache that may exist and just pull from store.
-				product, err = pullProduct(shopClient, productID)
+			arg := args[0]
+			if arg == "inventory" {
+				products, err := getInventory(shopClient, *skipCache)
 				if err != nil {
 					return err
 				}
-			} else {
-				// Try reading from cache.
-				product, err = cache.ReadProductFile(productID)
-				if os.IsNotExist(err) {
-					// Cache does not exist, therefore pull from store.
-					product, err = pullProduct(shopClient, productID)
-					if err != nil {
-						return err
-					}
-				} else if err != nil {
-					return err
-				}
+				return csv.WriteInventoryFile(products, metafieldDefs)
+			}
+			productID, err := utils.ParseID(arg)
+			if err != nil {
+				return err
+			}
+			product, err := getProduct(productID, shopClient, *skipCache)
+			if err != nil {
+				return err
 			}
 			return csv.WriteProductFile(product, metafieldDefs)
 		},
@@ -51,7 +43,48 @@ func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.Metafi
 	return cmd
 }
 
-func pullProduct(shopClient *shop.Client, id int64) (*goshopify.Product, error) {
+// getInventory returns the entire product inventory from the cache or from the
+// store.
+func getInventory(shopClient *shop.Client, skipCache bool) ([]goshopify.Product, error) {
+	if skipCache {
+		return pullAndCacheInventory(shopClient)
+	}
+	products, err := cache.ReadInventoryFile()
+	if os.IsNotExist(err) {
+		return pullAndCacheInventory(shopClient)
+	}
+	return products, err
+}
+
+// getProduct returns the product specified by ID from the cache or from the
+// store.
+func getProduct(id int64, shopClient *shop.Client, skipCache bool) (*goshopify.Product, error) {
+	if skipCache {
+		return pullAndCacheProduct(id, shopClient)
+	}
+	product, err := cache.ReadProductFile(id)
+	if os.IsNotExist(err) {
+		return pullAndCacheProduct(id, shopClient)
+	}
+	return product, err
+}
+
+// pullAndCacheInventory pulls the entire product inventory from the store and
+// writes it to a cache file.
+func pullAndCacheInventory(shopClient *shop.Client) ([]goshopify.Product, error) {
+	products, err := shopClient.GetInventoryWithMetafields()
+	if err != nil {
+		return nil, err
+	}
+	if err := cache.WriteInventoryFile(products); err != nil {
+		return nil, err
+	}
+	return products, nil
+}
+
+// pullAndCacheProduct pulls the product specified by ID from the store and
+// writes it to a cache file.
+func pullAndCacheProduct(id int64, shopClient *shop.Client) (*goshopify.Product, error) {
 	product, err := shopClient.GetProductWithMetafields(id)
 	if err != nil {
 		return nil, err

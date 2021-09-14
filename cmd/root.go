@@ -27,7 +27,6 @@ func Execute() error {
 	pullCmd := newPullCommand()
 	pullCmd.AddCommand(
 		newPullProductCommand(shopClient, &c.MetafieldDefinitions),
-		newPullProductsCommand(shopClient, &c.MetafieldDefinitions),
 	)
 	pushCmd := newPushCommand()
 	pushCmd.AddCommand(
