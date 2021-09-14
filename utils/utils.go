@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -8,13 +10,11 @@ import (
 )
 
 func OpenFileInTextEditor(filename string) error {
-	cmd := exec.Command("code", filename)
-	return cmd.Run()
+	return runCommand("code", filename)
 }
 
 func OpenFileInSpreadsheetEditor(filename string) error {
-	cmd := exec.Command("soffice.exe", "--calc", filename)
-	return cmd.Run()
+	return runCommand("soffice.exe", "--calc", filename)
 }
 
 func ParseID(id string) (int64, error) {
@@ -23,4 +23,16 @@ func ParseID(id string) (int64, error) {
 
 func RemoveExt(filename string) string {
 	return strings.TrimSuffix(filename, filepath.Ext(filename))
+}
+
+func runCommand(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("cannot open %v: %w", name, err)
+	}
+	return nil
 }

@@ -1,4 +1,5 @@
 shopctl
 dist
 *.csv
+*.swp
 .~lock*
