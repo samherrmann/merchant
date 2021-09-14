@@ -17,7 +17,7 @@ var (
 
 func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	return &cobra.Command{
-		Use:   "products <filename>",
+		Use:   "product <filename>",
 		Short: "Update products in store with data from CSV file",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

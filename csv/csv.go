@@ -54,12 +54,12 @@ func WriteProductFile(product *goshopify.Product, metafieldDefs *config.Metafiel
 	return WriteFile(fmt.Sprintf("%v.csv", product.ID), rows)
 }
 
-func WriteProductsFile(products []goshopify.Product, metafieldDefs *config.MetafieldDefinitions) error {
+func WriteInventoryFile(products []goshopify.Product, metafieldDefs *config.MetafieldDefinitions) error {
 	rows, err := makeRowsFromProducts(products, metafieldDefs)
 	if err != nil {
 		return err
 	}
-	return WriteFile("products.csv", rows)
+	return WriteFile("inventory.csv", rows)
 }
 
 func ParseMetafieldValue(row *Row) (interface{}, error) {

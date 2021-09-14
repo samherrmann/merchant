@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	productsFilename = "products.json"
+	inventoryFilename = "inventory.json"
 )
 
 func WriteFile(filename string, data []byte) error {
@@ -70,8 +70,8 @@ func ReadProductFile(id int64) (*goshopify.Product, error) {
 	return products, nil
 }
 
-func ReadProductsFile() ([]goshopify.Product, error) {
-	bytes, err := ReadFile(productsFilename)
+func ReadInventoryFile() ([]goshopify.Product, error) {
+	bytes, err := ReadFile(inventoryFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -90,12 +90,12 @@ func WriteProductFile(product *goshopify.Product) error {
 	return WriteFile(fmt.Sprintf("%v.json", product.ID), bytes)
 }
 
-func WriteProductsFile(products []goshopify.Product) error {
+func WriteInventoryFile(products []goshopify.Product) error {
 	bytes, err := json.MarshalIndent(products, "", "  ")
 	if err != nil {
 		return err
 	}
-	return WriteFile(productsFilename, bytes)
+	return WriteFile(inventoryFilename, bytes)
 }
 
 func PrintEntries() error {

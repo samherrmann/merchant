@@ -22,16 +22,16 @@ func newPullProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 			var err error
 			if *skipCache {
 				// Ignore cache that may exist and just pull from store.
-				products, err = pullProducts(shopClient)
+				products, err = pullInventory(shopClient)
 				if err != nil {
 					return err
 				}
 			} else {
 				// Try reading from cache.
-				products, err = cache.ReadProductsFile()
+				products, err = cache.ReadInventoryFile()
 				if os.IsNotExist(err) {
 					// Cache does not exist, therefore pull from store.
-					products, err = pullProducts(shopClient)
+					products, err = pullInventory(shopClient)
 					if err != nil {
 						return err
 					}
@@ -39,19 +39,19 @@ func newPullProductsCommand(shopClient *shop.Client, metafieldDefs *config.Metaf
 					return err
 				}
 			}
-			return csv.WriteProductsFile(products, metafieldDefs)
+			return csv.WriteInventoryFile(products, metafieldDefs)
 		},
 	}
 	skipCache = cmd.Flags().Bool("skip-cache", false, "Pull directly from store even if a local copy exists in the cache")
 	return cmd
 }
 
-func pullProducts(shopClient *shop.Client) ([]goshopify.Product, error) {
-	products, err := shopClient.GetProductsWithMetafields()
+func pullInventory(shopClient *shop.Client) ([]goshopify.Product, error) {
+	products, err := shopClient.GetInventoryWithMetafields()
 	if err != nil {
 		return nil, err
 	}
-	if err := cache.WriteProductsFile(products); err != nil {
+	if err := cache.WriteInventoryFile(products); err != nil {
 		return nil, err
 	}
 	return products, nil

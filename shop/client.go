@@ -36,7 +36,7 @@ func (c *Client) GetProductWithMetafields(id int64) (*goshopify.Product, error) 
 	return product, nil
 }
 
-func (c *Client) GetProductsWithMetafields() ([]goshopify.Product, error) {
+func (c *Client) GetInventoryWithMetafields() ([]goshopify.Product, error) {
 	products := []goshopify.Product{}
 	options := &goshopify.ListOptions{
 		// 250 is the maximum limit
