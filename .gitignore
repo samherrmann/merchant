@@ -1,5 +1,4 @@
 shopctl
 dist
-*.json
 *.csv
 .~lock*
