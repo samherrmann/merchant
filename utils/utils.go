@@ -12,6 +12,11 @@ func OpenFileInTextEditor(filename string) error {
 	return cmd.Run()
 }
 
+func OpenFileInSpreadsheetEditor(filename string) error {
+	cmd := exec.Command("soffice.exe", "--calc", filename)
+	return cmd.Run()
+}
+
 func ParseID(id string) (int64, error) {
 	return strconv.ParseInt(id, 10, 64)
 }

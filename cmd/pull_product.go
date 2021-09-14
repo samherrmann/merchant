@@ -14,6 +14,7 @@ import (
 
 func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	var skipCache *bool
+	var openFile *bool
 	cmd := &cobra.Command{
 		Use:   "product <id>|inventory",
 		Short: "Fetch product and its metadata from store",
@@ -26,7 +27,7 @@ func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.Metafi
 				if err != nil {
 					return err
 				}
-				return csv.WriteInventoryFile(products, metafieldDefs)
+				csv.WriteInventoryFile(products, metafieldDefs)
 			}
 			productID, err := utils.ParseID(arg)
 			if err != nil {
@@ -38,7 +39,14 @@ func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.Metafi
 			}
 			return csv.WriteProductFile(product, metafieldDefs)
 		},
+		PostRunE: func(cmd *cobra.Command, args []string) error {
+			if *openFile {
+				return utils.OpenFileInSpreadsheetEditor(args[0] + ".csv")
+			}
+			return nil
+		},
 	}
+	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
 	skipCache = cmd.Flags().Bool("skip-cache", false, "Pull directly from store even if a local copy exists in the cache")
 	return cmd
 }
