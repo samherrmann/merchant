@@ -116,3 +116,13 @@ func PrintEntries() error {
 	w.Flush()
 	return nil
 }
+
+// OpenFileInTextEditor opens a cache file in a text editor.
+func OpenFileInTextEditor(filename string) error {
+	dir, err := Dir()
+	if err != nil {
+		return err
+	}
+	filename = filepath.Join(dir, filename)
+	return utils.OpenFileInTextEditor(filename)
+}

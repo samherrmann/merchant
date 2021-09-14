@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/samherrmann/shopctl/utils"
 )
 
 const (
@@ -77,4 +79,14 @@ func FindMetafieldDefinition(defs []MetafieldDefinition, namespace string, key s
 		}
 	}
 	return nil
+}
+
+// OpenInTextEditor opens the configuration file in a text editor.
+func OpenInTextEditor() error {
+	dir, err := Dir()
+	if err != nil {
+		return err
+	}
+	filename := filepath.Join(dir, AppName) + ".json"
+	return utils.OpenFileInTextEditor(filename)
 }

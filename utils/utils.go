@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func RunVSCode(filename string) error {
+func OpenFileInTextEditor(filename string) error {
 	cmd := exec.Command("code", filename)
 	return cmd.Run()
 }
