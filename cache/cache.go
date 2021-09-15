@@ -10,6 +10,7 @@ import (
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/shopctl/config"
+	"github.com/samherrmann/shopctl/exec"
 	"github.com/samherrmann/shopctl/utils"
 )
 
@@ -124,5 +125,5 @@ func OpenFileInTextEditor(filename string) error {
 		return err
 	}
 	filename = filepath.Join(dir, filename)
-	return utils.OpenFileInTextEditor(filename)
+	return exec.RunTextEditor(filename)
 }

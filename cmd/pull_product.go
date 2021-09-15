@@ -7,6 +7,7 @@ import (
 	"github.com/samherrmann/shopctl/cache"
 	"github.com/samherrmann/shopctl/config"
 	"github.com/samherrmann/shopctl/csv"
+	"github.com/samherrmann/shopctl/exec"
 	"github.com/samherrmann/shopctl/shop"
 	"github.com/samherrmann/shopctl/utils"
 	"github.com/spf13/cobra"
@@ -41,7 +42,7 @@ func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.Metafi
 		},
 		PostRunE: func(cmd *cobra.Command, args []string) error {
 			if *openFile {
-				return utils.OpenFileInSpreadsheetEditor(args[0] + ".csv")
+				return exec.RunSpreadsheetEditor(args[0] + ".csv")
 			}
 			return nil
 		},

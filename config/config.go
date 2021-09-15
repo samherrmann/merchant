@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samherrmann/shopctl/utils"
+	"github.com/samherrmann/shopctl/exec"
 )
 
 const (
@@ -88,5 +88,5 @@ func OpenInTextEditor() error {
 		return err
 	}
 	filename := filepath.Join(dir, AppName) + ".json"
-	return utils.OpenFileInTextEditor(filename)
+	return exec.RunTextEditor(filename)
 }
