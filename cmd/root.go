@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/samherrmann/shopctl/config"
+	"github.com/samherrmann/shopctl/exec"
 	"github.com/samherrmann/shopctl/shop"
 	"github.com/spf13/cobra"
 )
@@ -13,6 +14,14 @@ func Execute() error {
 	}
 
 	shopClient := shop.NewClient(c)
+
+	if len(c.TextEditor) > 0 {
+		exec.TextEditorCmd = c.TextEditor
+	}
+
+	if len(c.SpreadsheetEditor) > 0 {
+		exec.SpreadsheetEditorCmd = c.SpreadsheetEditor
+	}
 
 	cacheCmd := newCacheCommand()
 	cacheCmd.AddCommand(

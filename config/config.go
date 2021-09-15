@@ -15,10 +15,18 @@ const (
 )
 
 type Config struct {
-	ShopName             string               `json:"shopName"`
-	APIKey               string               `json:"apiKey"`
-	Password             string               `json:"password"`
+	// ShopName is the Shopify store name.
+	ShopName string `json:"shopName"`
+	// APIKey is the API key for the Shopify store.
+	APIKey string `json:"apiKey"`
+	// Password is the password associated with the API key.
+	Password string `json:"password"`
+	// MetafieldDefinitions contains metafield definitions.
 	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
+	// TextEditorCmd is the command that launches the text editor.
+	TextEditor []string `json:"textEditor"`
+	// SpreadsheetEditor is the command that launches the spreadsheet editor.
+	SpreadsheetEditor []string `json:"spreadsheetEditor"`
 }
 
 // MetafieldDefinitions
