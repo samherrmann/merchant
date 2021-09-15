@@ -6,11 +6,6 @@ import (
 	"os/exec"
 )
 
-var (
-	TextEditorCmd        = []string{"code"}
-	SpreadsheetEditorCmd = []string{"soffice.exe", "--calc"}
-)
-
 // RunTextEditor opens filename in the text editor.
 func RunTextEditor(filename string) error {
 	name := TextEditorCmd[0]
