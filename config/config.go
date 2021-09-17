@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -52,7 +51,17 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	bytes, err := ioutil.ReadFile(filename)
+	bytes, err := os.ReadFile(filename)
+	if os.IsNotExist(err) {
+		if err := writeSampleFile(filename); err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf(
+			"%v not found, but a sample file was created for you. Run '%v config open' to edit the file",
+			filename,
+			AppName,
+		)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to read %v: %w", filename, err)
 	}
@@ -97,4 +106,22 @@ func OpenInTextEditor() error {
 	}
 	filename := filepath.Join(dir, AppName) + ".json"
 	return exec.RunTextEditor(filename)
+}
+
+// writeSampleFile write a default configuration file.
+func writeSampleFile(filename string) error {
+	// https://github.com/golang/go/issues/27589
+	c := &Config{
+		MetafieldDefinitions: MetafieldDefinitions{
+			Product: []MetafieldDefinition{},
+			Variant: []MetafieldDefinition{},
+		},
+		SpreadsheetEditor: []string{},
+		TextEditor:        []string{},
+	}
+	bytes, err := json.MarshalIndent(c, "", " ")
+	if err != nil {
+		return nil
+	}
+	return os.WriteFile(filename, bytes, 0644)
 }
