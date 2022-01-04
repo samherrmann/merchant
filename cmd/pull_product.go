@@ -29,6 +29,7 @@ func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.Metafi
 					return err
 				}
 				csv.WriteInventoryFile(products, metafieldDefs)
+				return nil
 			}
 			productID, err := utils.ParseID(arg)
 			if err != nil {
