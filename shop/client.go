@@ -11,14 +11,14 @@ type Client struct {
 	*goshopify.Client
 }
 
-func NewClient(c *config.Config) *Client {
+func NewClient(c *config.StoreConfig) *Client {
 	return &Client{
 		Client: goshopify.NewClient(
 			goshopify.App{
 				ApiKey:   c.APIKey,
 				Password: c.Password,
 			},
-			c.ShopName,
+			c.Name,
 			"",
 			goshopify.WithRetry(3),
 		),

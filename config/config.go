@@ -14,18 +14,41 @@ const (
 )
 
 type Config struct {
-	// ShopName is the Shopify store name.
-	ShopName string `json:"shopName"`
-	// APIKey is the API key for the Shopify store.
-	APIKey string `json:"apiKey"`
-	// Password is the password associated with the API key.
-	Password string `json:"password"`
+	// List of Shopify stores.
+	Stores StoreConfigs `json:"stores"`
 	// MetafieldDefinitions contains metafield definitions.
 	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
 	// TextEditorCmd is the command that launches the text editor.
 	TextEditor []string `json:"textEditor"`
 	// SpreadsheetEditor is the command that launches the spreadsheet editor.
 	SpreadsheetEditor []string `json:"spreadsheetEditor"`
+}
+
+type StoreConfig struct {
+	// Name is the name of the Shopify store as shown in
+	// <store-name>.myshopify.com.
+	Name string `json:"name"`
+	// APIKey is the API key for the Shopify store.
+	APIKey string `json:"apiKey"`
+	// Password is the password associated with the API key.
+	Password string `json:"password"`
+}
+
+type StoreConfigs []StoreConfig
+
+// Get returns the configuration for the given name. The first configuration is
+// returned if name is an empty string. Nil is returned if no configuration can
+// be found for the given name.
+func (configs StoreConfigs) Get(name string) *StoreConfig {
+	if name == "" {
+		return &configs[0]
+	}
+	for _, c := range configs {
+		if c.Name == name {
+			return &c
+		}
+	}
+	return nil
 }
 
 // MetafieldDefinitions

@@ -7,7 +7,6 @@ import (
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/shopctl/config"
 	"github.com/samherrmann/shopctl/csv"
-	"github.com/samherrmann/shopctl/shop"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +14,7 @@ var (
 	errEmpty = errors.New("value and unit are empty")
 )
 
-func newPushProductsCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
+func newPushProductsCommand(metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	return &cobra.Command{
 		Use:   "product <filename>",
 		Short: "Update products in store with data from CSV file",

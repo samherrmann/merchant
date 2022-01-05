@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newPullProductCommand(shopClient *shop.Client, metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
+func newPullProductCommand(metafieldDefs *config.MetafieldDefinitions) *cobra.Command {
 	var skipCache *bool
 	var openFile *bool
 	cmd := &cobra.Command{

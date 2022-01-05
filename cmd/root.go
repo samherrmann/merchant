@@ -1,10 +1,16 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/samherrmann/shopctl/config"
 	"github.com/samherrmann/shopctl/exec"
 	"github.com/samherrmann/shopctl/shop"
 	"github.com/spf13/cobra"
+)
+
+var (
+	shopClient *shop.Client
 )
 
 func Execute() error {
@@ -13,7 +19,16 @@ func Execute() error {
 		return err
 	}
 
-	shopClient := shop.NewClient(c)
+	rootCmd := &cobra.Command{}
+	storeName := rootCmd.PersistentFlags().String("store", "", "Name of the store")
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		storeConfig := c.Stores.Get(*storeName)
+		if storeConfig == nil {
+			return fmt.Errorf("no config for store %q", *storeName)
+		}
+		shopClient = shop.NewClient(storeConfig)
+		return nil
+	}
 
 	if len(c.TextEditor) > 0 {
 		exec.TextEditorCmd = c.TextEditor
@@ -35,13 +50,12 @@ func Execute() error {
 	)
 	pullCmd := newPullCommand()
 	pullCmd.AddCommand(
-		newPullProductCommand(shopClient, &c.MetafieldDefinitions),
+		newPullProductCommand(&c.MetafieldDefinitions),
 	)
 	pushCmd := newPushCommand()
 	pushCmd.AddCommand(
-		newPushProductsCommand(shopClient, &c.MetafieldDefinitions),
+		newPushProductsCommand(&c.MetafieldDefinitions),
 	)
-	rootCmd := &cobra.Command{}
 	rootCmd.AddCommand(
 		cacheCmd,
 		configCmd,
