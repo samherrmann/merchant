@@ -14,6 +14,7 @@ import (
 
 type Row struct {
 	ProductID          int64       `csv:"product_id"`
+	ProductTitle       string      `csv:"product_title"`
 	VariantID          int64       `csv:"variant_id,omitempty"`
 	MetafiledID        int64       `csv:"metafiled_id,omitempty"`
 	MetafieldKey       string      `csv:"metafield_key"`
@@ -76,9 +77,9 @@ func ParseMetafieldValue(row *Row) (interface{}, error) {
 func makeRowsFromProducts(products []goshopify.Product, metafieldDefs *config.MetafieldDefinitions) ([]Row, error) {
 	rows := []Row{}
 	for _, p := range products {
-		productRows := makeRowsFromDefinitions(p.ID, 0, metafieldDefs.Product)
+		productRows := makeRowsFromDefinitions(p.ID, p.Title, 0, metafieldDefs.Product)
 		for _, m := range p.Metafields {
-			row, err := makeRowFromMetafield(p.ID, 0, &m)
+			row, err := makeRowFromMetafield(p.ID, p.Title, 0, &m)
 			if err != nil {
 				return nil, err
 			}
@@ -89,9 +90,9 @@ func makeRowsFromProducts(products []goshopify.Product, metafieldDefs *config.Me
 		}
 
 		for _, v := range p.Variants {
-			variantRows := makeRowsFromDefinitions(p.ID, v.ID, metafieldDefs.Variant)
+			variantRows := makeRowsFromDefinitions(p.ID, p.Title, v.ID, metafieldDefs.Variant)
 			for _, m := range v.Metafields {
-				row, err := makeRowFromMetafield(p.ID, v.ID, &m)
+				row, err := makeRowFromMetafield(p.ID, p.Title, v.ID, &m)
 				if err != nil {
 					return nil, err
 				}
@@ -105,11 +106,12 @@ func makeRowsFromProducts(products []goshopify.Product, metafieldDefs *config.Me
 	return rows, nil
 }
 
-func makeRowsFromDefinitions(productID int64, variantID int64, definitions []config.MetafieldDefinition) RowsMap {
+func makeRowsFromDefinitions(productID int64, productTitle string, variantID int64, definitions []config.MetafieldDefinition) RowsMap {
 	rowsMap := RowsMap{}
 	for _, def := range definitions {
 		row := Row{
 			ProductID:          productID,
+			ProductTitle:       productTitle,
 			VariantID:          variantID,
 			MetafieldKey:       def.Key,
 			MetafieldNamespace: def.Namespace,
@@ -119,9 +121,10 @@ func makeRowsFromDefinitions(productID int64, variantID int64, definitions []con
 	return rowsMap
 }
 
-func makeRowFromMetafield(productID int64, variantID int64, metafield *goshopify.Metafield) (*Row, error) {
+func makeRowFromMetafield(productID int64, productTitle string, variantID int64, metafield *goshopify.Metafield) (*Row, error) {
 	row := &Row{
 		ProductID:          productID,
+		ProductTitle:       productTitle,
 		VariantID:          variantID,
 		MetafiledID:        metafield.ID,
 		MetafieldKey:       metafield.Key,
