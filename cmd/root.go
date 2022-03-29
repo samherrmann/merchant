@@ -50,6 +50,7 @@ func Execute() error {
 	)
 	countCmd := newCountCommand()
 	countCmd.AddCommand(
+		newCountProductsCommand(),
 		newCountVariantsCommand(),
 	)
 	pullCmd := newPullCommand()
