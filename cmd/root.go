@@ -48,6 +48,10 @@ func Execute() error {
 	configCmd.AddCommand(
 		newConfigOpenCommand(),
 	)
+	countCmd := newCountCommand()
+	countCmd.AddCommand(
+		newCountVariantsCommand(),
+	)
 	pullCmd := newPullCommand()
 	pullCmd.AddCommand(
 		newPullProductCommand(&c.MetafieldDefinitions),
@@ -59,6 +63,7 @@ func Execute() error {
 	rootCmd.AddCommand(
 		cacheCmd,
 		configCmd,
+		countCmd,
 		pullCmd,
 		pushCmd,
 		newVersionCommand(config.AppName),

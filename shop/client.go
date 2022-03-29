@@ -37,27 +37,57 @@ func (c *Client) GetProductWithMetafields(id int64) (*goshopify.Product, error) 
 }
 
 func (c *Client) GetInventoryWithMetafields() ([]goshopify.Product, error) {
-	products := []goshopify.Product{}
+	products, err := c.ListProducts(nil)
+	if err != nil {
+		return nil, err
+	}
+	for i, product := range products {
+		fmt.Printf("Getting metafields for product %v\n", product.ID)
+		if err := c.attachMetafields(&product); err != nil {
+			return nil, err
+		}
+		// TODO check if this is necessary.
+		products[i] = product
+	}
+	return products, nil
+}
+
+// GetVariantCount returns the total number of variants for all products.
+func (c *Client) GetVariantCount() (int, error) {
 	options := &goshopify.ListOptions{
+		Fields: "variants",
+	}
+	products, err := c.ListProducts(options)
+	if err != nil {
+		return 0, err
+	}
+	variantIds := []int64{}
+	for _, p := range products {
+		for _, v := range p.Variants {
+			variantIds = append(variantIds, v.ID)
+		}
+	}
+	return len(variantIds), nil
+}
+
+func (c *Client) ListProducts(options *goshopify.ListOptions) ([]goshopify.Product, error) {
+	products := []goshopify.Product{}
+	defaultOptions := &goshopify.ListOptions{
 		// 250 is the maximum limit
 		// https://shopify.dev/api/admin/rest/reference/products/product?api%5Bversion%5D=2020-10#endpoints-2020-10
 		Limit: 250,
+	}
+	if options == nil {
+		options = defaultOptions
+	}
+	if options.Limit == 0 {
+		options.Limit = defaultOptions.Limit
 	}
 	for {
 		productsPacket, pagination, err := c.Product.ListWithPagination(options)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get packet of products: %w", err)
 		}
-
-		for i, product := range productsPacket {
-			fmt.Printf("Getting metafields for product %v\n", product.ID)
-			if err := c.attachMetafields(&product); err != nil {
-				return nil, err
-			}
-			// TODO check if this is necessary.
-			productsPacket[i] = product
-		}
-
 		products = append(products, productsPacket...)
 		if pagination.NextPageOptions == nil {
 			break
