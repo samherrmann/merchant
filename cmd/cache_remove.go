@@ -10,7 +10,7 @@ import (
 
 func newCacheRemoveCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:     "remove",
+		Use:     "remove <filename>",
 		Aliases: []string{"rm"},
 		Short:   "Remove file from cache",
 		Args:    cobra.ExactArgs(1),
