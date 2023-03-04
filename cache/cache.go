@@ -24,7 +24,7 @@ func WriteFile(filename string, data []byte) error {
 		return err
 	}
 	// We first join the filename with the cache directory and then call
-	// filepath.Dir so that if filename includes a directory that doen't exist
+	// filepath.Dir so that if filename includes a directory that doesn't exist
 	// yet then we can create it before writing the file.
 	path := filepath.Join(dir, filename)
 	dir = filepath.Dir(path)
@@ -51,12 +51,16 @@ func ReadDir() ([]fs.DirEntry, error) {
 	return os.ReadDir(dir)
 }
 
+// Dir returns the path to the cache directory. If the directory does not exist,
+// then Dir will create it.
 func Dir() (string, error) {
-	dir, err := os.UserCacheDir()
+	cacheRootDir, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(dir, config.AppName), nil
+	cacheDir := filepath.Join(cacheRootDir, config.AppName)
+	err = os.MkdirAll(cacheDir, os.ModePerm)
+	return cacheDir, err
 }
 
 func ReadProductFile(id int64) (*goshopify.Product, error) {
