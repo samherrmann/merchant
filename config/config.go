@@ -1,3 +1,4 @@
+// Package config manages the application configurations.
 package config
 
 import (
@@ -51,7 +52,7 @@ func (configs StoreConfigs) Get(name string) *StoreConfig {
 	return nil
 }
 
-// MetafieldDefinitions
+// MetafieldDefinitions define product and variant metafields.
 //
 // At the time of writing, metafield definitions are not available via the REST
 // Admin API. In the meantime, the user must define the metafield definitions in

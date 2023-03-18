@@ -1,3 +1,4 @@
+// Package shop provides a client to communicate with a shopify store.
 package shop
 
 import (

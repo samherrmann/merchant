@@ -1,3 +1,7 @@
+// Package utils is a general utility package.
+//
+// TODO: Remove this package. Generic utility packages are bad practice because
+// they have an undefined scope.
 package utils
 
 import (

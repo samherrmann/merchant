@@ -1,3 +1,5 @@
+// Package collection provides utilities to work with collections such as slices
+// and arrays.
 package collection
 
 func NewOrderedMap[K comparable, V any]() *OrderedMap[K, V] {

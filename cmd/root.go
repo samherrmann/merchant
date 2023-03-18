@@ -1,3 +1,4 @@
+// Package cmd defines the CLI commands.
 package cmd
 
 import (

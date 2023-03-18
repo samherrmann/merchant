@@ -1,3 +1,4 @@
+// Package csv enables reading and writing product data to and from a CSV file.
 package csv
 
 import (

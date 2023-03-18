@@ -1,3 +1,4 @@
+// Package cache handles the local caching of store data.
 package cache
 
 import (
