@@ -42,3 +42,14 @@ func PadSliceRight[T any](slice []T, length int) []T {
 	}
 	return append(slice, make([]T, length-len(slice))...)
 }
+
+// IndexOf returns the index of the first matching element in slice. -1 is
+// returns if the index cannot be found.
+func IndexOf[T comparable](slice []T, el T) int {
+	for i, v := range slice {
+		if v == el {
+			return i
+		}
+	}
+	return -1
+}

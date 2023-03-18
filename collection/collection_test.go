@@ -113,3 +113,44 @@ func TestOrderedMap_Slice(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 }
+
+func TestIndexOf(t *testing.T) {
+	tests := []struct {
+		name    string
+		slice   []string
+		element string
+		want    int
+	}{
+		{
+			name:    "slice is empty",
+			slice:   []string{},
+			element: "foo",
+			want:    -1,
+		},
+		{
+			name:    "slice does not contain element",
+			slice:   []string{"one", "two", "three"},
+			element: "foo",
+			want:    -1,
+		},
+		{
+			name:    "slice contains element",
+			slice:   []string{"one", "two", "three"},
+			element: "three",
+			want:    2,
+		},
+		{
+			name:    "returns first of duplicates",
+			slice:   []string{"one", "two", "three", "three"},
+			element: "three",
+			want:    2,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IndexOf(tt.slice, tt.element); got != tt.want {
+				t.Errorf("got %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
