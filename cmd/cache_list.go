@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+
 	"github.com/samherrmann/shopctl/cache"
 	"github.com/spf13/cobra"
 )
@@ -11,7 +13,7 @@ func newCacheListCommand() *cobra.Command {
 		Aliases: []string{"ls"},
 		Short:   "List files in cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return cache.PrintEntries()
+			return cache.PrintEntries(os.Stdout)
 		},
 	}
 }

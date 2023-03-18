@@ -4,6 +4,7 @@ package cache
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -19,39 +20,6 @@ const (
 	inventoryFilename = "inventory.json"
 )
 
-func WriteFile(filename string, data []byte) error {
-	dir, err := Dir()
-	if err != nil {
-		return err
-	}
-	// We first join the filename with the cache directory and then call
-	// filepath.Dir so that if filename includes a directory that doesn't exist
-	// yet then we can create it before writing the file.
-	path := filepath.Join(dir, filename)
-	dir = filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
-	return os.WriteFile(path, data, 0644)
-}
-
-func ReadFile(filename string) ([]byte, error) {
-	dir, err := Dir()
-	if err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, filename)
-	return os.ReadFile(path)
-}
-
-func ReadDir() ([]fs.DirEntry, error) {
-	dir, err := Dir()
-	if err != nil {
-		return nil, err
-	}
-	return os.ReadDir(dir)
-}
-
 // Dir returns the path to the cache directory. If the directory does not exist,
 // then Dir will create it.
 func Dir() (string, error) {
@@ -65,7 +33,7 @@ func Dir() (string, error) {
 }
 
 func ReadProductFile(id int64) (*goshopify.Product, error) {
-	bytes, err := ReadFile(fmt.Sprintf("%v.json", id))
+	bytes, err := readFile(fmt.Sprintf("%v.json", id))
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +45,7 @@ func ReadProductFile(id int64) (*goshopify.Product, error) {
 }
 
 func ReadInventoryFile() ([]goshopify.Product, error) {
-	bytes, err := ReadFile(inventoryFilename)
+	bytes, err := readFile(inventoryFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +61,7 @@ func WriteProductFile(product *goshopify.Product) error {
 	if err != nil {
 		return err
 	}
-	return WriteFile(fmt.Sprintf("%v.json", product.ID), bytes)
+	return writeFile(fmt.Sprintf("%v.json", product.ID), bytes)
 }
 
 func WriteInventoryFile(products []goshopify.Product) error {
@@ -101,16 +69,17 @@ func WriteInventoryFile(products []goshopify.Product) error {
 	if err != nil {
 		return err
 	}
-	return WriteFile(inventoryFilename, bytes)
+	return writeFile(inventoryFilename, bytes)
 }
 
-func PrintEntries() error {
-	entries, err := ReadDir()
+// PrintEntries writes all cache entries to the given writer.
+func PrintEntries(w io.Writer) error {
+	entries, err := readDir()
 	if err != nil {
 		return err
 	}
 	// Print entries table
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	tw := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
 	fmt.Fprintf(w, "%v\t%v\n", "FILE", "MODIFIED")
 	for _, entry := range entries {
 		info, err := entry.Info()
@@ -119,7 +88,7 @@ func PrintEntries() error {
 		}
 		fmt.Fprintf(w, "%v\t%v\n", utils.RemoveExt(entry.Name()), info.ModTime())
 	}
-	w.Flush()
+	tw.Flush()
 	return nil
 }
 
@@ -131,4 +100,37 @@ func OpenFileInTextEditor(filename string) error {
 	}
 	filename = filepath.Join(dir, filename)
 	return exec.RunTextEditor(filename)
+}
+
+func readDir() ([]fs.DirEntry, error) {
+	dir, err := Dir()
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadDir(dir)
+}
+
+func readFile(filename string) ([]byte, error) {
+	dir, err := Dir()
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(dir, filename)
+	return os.ReadFile(path)
+}
+
+func writeFile(filename string, data []byte) error {
+	dir, err := Dir()
+	if err != nil {
+		return err
+	}
+	// We first join the filename with the cache directory and then call
+	// filepath.Dir so that if filename includes a directory that doesn't exist
+	// yet then we can create it before writing the file.
+	path := filepath.Join(dir, filename)
+	dir = filepath.Dir(path)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return err
+	}
+	return os.WriteFile(path, data, 0644)
 }
