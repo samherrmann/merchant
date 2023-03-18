@@ -10,8 +10,10 @@ import (
 	"github.com/samherrmann/shopctl/exec"
 )
 
+// Build-time variables set by -ldflags.
 const (
 	AppName = "shopctl"
+	Version = "dev"
 )
 
 type Config struct {

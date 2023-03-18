@@ -20,7 +20,7 @@ func Execute() error {
 		return err
 	}
 
-	rootCmd := &cobra.Command{}
+	rootCmd := &cobra.Command{Use: config.AppName}
 	storeName := rootCmd.PersistentFlags().String("store", "", "Name of the store")
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		storeConfig := c.Stores.Get(*storeName)
@@ -68,7 +68,7 @@ func Execute() error {
 		countCmd,
 		pullCmd,
 		pushCmd,
-		newVersionCommand(config.AppName),
+		newVersionCommand(),
 	)
 	return rootCmd.Execute()
 }
