@@ -7,14 +7,14 @@ target = $(shell go env GOOS)-$(shell go env GOARCH)
 dist = dist/$(target)
 
 build:
-	mkdir -p $(dist) && go build -ldflags "-s -w -X $(module)/cmd.Version=$(version)" -o $(dist) .
+	mkdir -p $(dist) && go build -race -ldflags "-s -w -X $(module)/cmd.Version=$(version)" -o $(dist) .
 
 build.all:
 	export GOOS=linux && export GOARCH=amd64 && make build && make tar
 	export GOOS=windows && export GOARCH=amd64 && make build && make zip
 
 test:
-	go test ./... -cover
+	go test ./... -race -cover
 
 clean:
 	rm -rf dist
