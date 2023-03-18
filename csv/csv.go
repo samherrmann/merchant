@@ -3,7 +3,6 @@ package csv
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
@@ -44,7 +43,7 @@ func WriteFile(filename string, rows []Row) error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filename, bytes, 0644)
+	return os.WriteFile(filename, bytes, 0644)
 }
 
 func WriteProductFile(product *goshopify.Product, metafieldDefs *config.MetafieldDefinitions) error {
