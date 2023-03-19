@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/samherrmann/shopctl/cmd"
+	"github.com/samherrmann/merchant/cmd"
 )
 
 func main() {

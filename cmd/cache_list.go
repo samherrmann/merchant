@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/samherrmann/shopctl/cache"
+	"github.com/samherrmann/merchant/cache"
 	"github.com/spf13/cobra"
 )
 

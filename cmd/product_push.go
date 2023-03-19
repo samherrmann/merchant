@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/samherrmann/shopctl/csv"
+	"github.com/samherrmann/merchant/csv"
 	"github.com/spf13/cobra"
 )
 

@@ -1,4 +1,4 @@
-# shopctl
+# Merchant
 
 CLI to manage Shopify products.
 

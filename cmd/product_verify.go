@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/samherrmann/shopctl/memdb"
+	"github.com/samherrmann/merchant/memdb"
 	"github.com/spf13/cobra"
 )
 

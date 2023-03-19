@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/samherrmann/shopctl/config"
-	"github.com/samherrmann/shopctl/exec"
-	"github.com/samherrmann/shopctl/shop"
+	"github.com/samherrmann/merchant/config"
+	"github.com/samherrmann/merchant/exec"
+	"github.com/samherrmann/merchant/shop"
 	"github.com/spf13/cobra"
 )
 

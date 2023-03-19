@@ -1,4 +1,4 @@
-module github.com/samherrmann/shopctl
+module github.com/samherrmann/merchant
 
 go 1.20
 

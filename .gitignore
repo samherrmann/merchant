@@ -1,6 +1,6 @@
-shopctl
+merchant
+merchant.push.json
 dist
 *.csv
 *.swp
 .~lock*
-shopctl.push.json

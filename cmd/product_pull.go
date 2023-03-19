@@ -3,8 +3,8 @@ package cmd
 import (
 	"strconv"
 
-	"github.com/samherrmann/shopctl/csv"
-	"github.com/samherrmann/shopctl/exec"
+	"github.com/samherrmann/merchant/csv"
+	"github.com/samherrmann/merchant/exec"
 	"github.com/spf13/cobra"
 )
 

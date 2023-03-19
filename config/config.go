@@ -7,12 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samherrmann/shopctl/exec"
+	"github.com/samherrmann/merchant/exec"
 )
 
 // Build-time variables set by -ldflags.
 const (
-	AppName = "shopctl"
+	AppName = "merchant"
 	Version = "dev"
 )
 
@@ -58,7 +58,7 @@ func (configs StoreConfigs) Get(name string) *StoreConfig {
 //
 // At the time of writing, metafield definitions are not available via the REST
 // Admin API. In the meantime, the user must define the metafield definitions in
-// the shopctl.json file.
+// the merchant.json file.
 // https://shopify.dev/apps/metafields/definitions#structure-of-a-metafield-definition
 type MetafieldDefinitions struct {
 	Product []MetafieldDefinition `json:"product"`

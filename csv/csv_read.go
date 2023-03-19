@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/shopctl/collection"
+	"github.com/samherrmann/merchant/collection"
 	"github.com/shopspring/decimal"
 )
 

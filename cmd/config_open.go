@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/samherrmann/shopctl/config"
+	"github.com/samherrmann/merchant/config"
 	"github.com/spf13/cobra"
 )
 

@@ -6,7 +6,7 @@ import (
 	"os"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/shopctl/collection"
+	"github.com/samherrmann/merchant/collection"
 )
 
 func WriteProductFile(product *goshopify.Product) error {

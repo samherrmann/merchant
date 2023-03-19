@@ -12,8 +12,8 @@ import (
 	"text/tabwriter"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/shopctl/config"
-	"github.com/samherrmann/shopctl/exec"
+	"github.com/samherrmann/merchant/config"
+	"github.com/samherrmann/merchant/exec"
 )
 
 const (

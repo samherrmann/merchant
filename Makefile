@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 MAKEFLAGS += --silent
-name = shopctl
+name = merchant
 module = github.com/samherrmann/$(name)
 version = $(shell git rev-parse --short HEAD)$(shell [[ -z $$(git status -s) ]] || echo "-dirty")
 target = $(shell go env GOOS)-$(shell go env GOARCH)

@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/samherrmann/shopctl/csv"
-	"github.com/samherrmann/shopctl/memdb"
+	"github.com/samherrmann/merchant/csv"
+	"github.com/samherrmann/merchant/memdb"
 	"github.com/spf13/cobra"
 )
 

@@ -7,9 +7,9 @@ import (
 	"os"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/shopctl/cache"
-	"github.com/samherrmann/shopctl/config"
-	"github.com/samherrmann/shopctl/memdb"
+	"github.com/samherrmann/merchant/cache"
+	"github.com/samherrmann/merchant/config"
+	"github.com/samherrmann/merchant/memdb"
 )
 
 var (
