@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/samherrmann/shopctl/config"
 	"github.com/samherrmann/shopctl/exec"
@@ -49,25 +50,18 @@ func Execute() error {
 	configCmd.AddCommand(
 		newConfigOpenCommand(),
 	)
-	countCmd := newCountCommand()
-	countCmd.AddCommand(
-		newCountProductsCommand(),
-		newCountVariantsCommand(),
-	)
-	pullCmd := newPullCommand()
-	pullCmd.AddCommand(
-		newPullProductCommand(&c.MetafieldDefinitions),
-	)
-	pushCmd := newPushCommand()
-	pushCmd.AddCommand(
-		newPushProductsCommand(&c.MetafieldDefinitions),
+	productCmd := newProductCommand()
+	productCmd.AddCommand(
+		newProductCountCommand(os.Stdout),
+		newProductFakePushCommand(os.Stdout, config.AppName+".push.json"),
+		newProductPullCommand(),
+		newProductPushCommand(),
+		newProductVerifyCommand(os.Stdout),
 	)
 	rootCmd.AddCommand(
 		cacheCmd,
 		configCmd,
-		countCmd,
-		pullCmd,
-		pushCmd,
+		productCmd,
 		newVersionCommand(config.AppName, config.Version),
 	)
 	return rootCmd.Execute()

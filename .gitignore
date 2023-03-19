@@ -3,3 +3,4 @@ dist
 *.csv
 *.swp
 .~lock*
+shopctl.push.json
