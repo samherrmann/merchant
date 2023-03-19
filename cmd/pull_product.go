@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"strconv"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/shopctl/cache"
@@ -9,7 +10,6 @@ import (
 	"github.com/samherrmann/shopctl/csv"
 	"github.com/samherrmann/shopctl/exec"
 	"github.com/samherrmann/shopctl/shop"
-	"github.com/samherrmann/shopctl/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +31,7 @@ func newPullProductCommand(metafieldDefs *config.MetafieldDefinitions) *cobra.Co
 				csv.WriteInventoryFile(products, metafieldDefs)
 				return nil
 			}
-			productID, err := utils.ParseID(arg)
+			productID, err := strconv.ParseInt(arg, 10, 64)
 			if err != nil {
 				return err
 			}

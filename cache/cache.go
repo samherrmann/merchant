@@ -8,12 +8,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/tabwriter"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/shopctl/config"
 	"github.com/samherrmann/shopctl/exec"
-	"github.com/samherrmann/shopctl/utils"
 )
 
 const (
@@ -86,7 +86,7 @@ func PrintEntries(w io.Writer) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(w, "%v\t%v\n", utils.RemoveExt(entry.Name()), info.ModTime())
+		fmt.Fprintf(w, "%v\t%v\n", removeExt(entry.Name()), info.ModTime())
 	}
 	tw.Flush()
 	return nil
@@ -133,4 +133,9 @@ func writeFile(filename string, data []byte) error {
 		return err
 	}
 	return os.WriteFile(path, data, 0644)
+}
+
+// removeExt returns filename without the extension
+func removeExt(filename string) string {
+	return strings.TrimSuffix(filename, filepath.Ext(filename))
 }
