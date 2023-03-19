@@ -68,7 +68,7 @@ func Execute() error {
 		countCmd,
 		pullCmd,
 		pushCmd,
-		newVersionCommand(),
+		newVersionCommand(config.AppName, config.Version),
 	)
 	return rootCmd.Execute()
 }
