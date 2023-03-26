@@ -10,7 +10,6 @@ dist = dist/$(target)
 build:
 	mkdir -p $(dist) && \
 	go build \
-		-race \
 		-ldflags "-s -w -X $(module)/config.Version=$(version) -X $(module)/config.AppName=$(name)" \
 		-o $(dist) .
 

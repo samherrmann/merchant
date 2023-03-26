@@ -1,6 +1,6 @@
 package config
 
 var (
-	defaultTextEditor        = []string{"notepad.exe"}
-	defaultSpreadsheetEditor = []string{"notepad.exe"}
+	DefaultTextEditor        = []string{"notepad.exe"}
+	DefaultSpreadsheetEditor = []string{"notepad.exe"}
 )

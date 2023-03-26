@@ -27,8 +27,7 @@ jobs:
     - name: Test
       run: make test
 
-    - name: Build all
-      if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+    - name: Build
       # The GITHUB_REF string is in the format of /refs/heads/branch-name or
       # /refs/tags/tag-name. ${GITHUB_REF##*/} extracts the branch/tag name
       # only.
