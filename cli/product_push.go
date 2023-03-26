@@ -3,7 +3,7 @@ package cli
 import (
 	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/csv"
-	"github.com/samherrmann/merchant/shop"
+	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +20,7 @@ func newProductPushCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			store := shop.NewClient(&cfg.Store)
+			store := shopify.NewClient(&cfg.Store)
 
 			products, err := csv.ReadProducts(args[0])
 			if err != nil {

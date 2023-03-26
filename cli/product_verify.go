@@ -6,7 +6,7 @@ import (
 
 	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/memdb"
-	"github.com/samherrmann/merchant/shop"
+	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ func newProductVerifyCommand(w io.Writer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			store := shop.NewClient(&cfg.Store)
+			store := shopify.NewClient(&cfg.Store)
 
 			inventory, err := store.GetInventory(*skipCache)
 			if err != nil {

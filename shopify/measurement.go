@@ -1,4 +1,4 @@
-package shop
+package shopify
 
 type Measurement struct {
 	Value float64 `json:"value"`

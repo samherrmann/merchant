@@ -1,4 +1,4 @@
-package shop
+package shopify
 
 type Configuration struct {
 	// Name is the name of the Shopify store as shown in

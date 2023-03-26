@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/samherrmann/merchant/editor"
-	"github.com/samherrmann/merchant/shop"
+	"github.com/samherrmann/merchant/shopify"
 )
 
 // Build-time variables set by -ldflags.
@@ -23,7 +23,7 @@ func New() *Config {
 	// JSON without fields that are of type array set to null.
 	// https://github.com/golang/go/issues/27589
 	return &Config{
-		Store: shop.Configuration{},
+		Store: shopify.Configuration{},
 		MetafieldDefinitions: MetafieldDefinitions{
 			Product: []MetafieldDefinition{},
 			Variant: []MetafieldDefinition{},
@@ -35,7 +35,7 @@ func New() *Config {
 
 type Config struct {
 	// Store contains the Shopify store access information.
-	Store shop.Configuration `json:"store"`
+	Store shopify.Configuration `json:"store"`
 	// MetafieldDefinitions contains metafield definitions.
 	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
 	// TextEditorCmd is the command that launches the text editor.

@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/samherrmann/merchant/config"
-	"github.com/samherrmann/merchant/shop"
+	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ func newProductCountCommand(w io.Writer) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			store := shop.NewClient(&cfg.Store)
+			store := shopify.NewClient(&cfg.Store)
 			productCount, err := store.Product.Count(nil)
 			if err != nil {
 				return err

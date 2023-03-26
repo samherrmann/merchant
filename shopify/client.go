@@ -1,5 +1,5 @@
-// Package shop provides a client to communicate with a shopify store.
-package shop
+// Package shopify provides a client to communicate with a shopify store.
+package shopify
 
 import (
 	"errors"
