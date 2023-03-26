@@ -58,10 +58,6 @@ func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command
 			return err
 		},
 	}
-	skipCache = cmd.Flags().Bool(
-		"skip-cache",
-		false,
-		"Pull from store even if a local copy exists in the cache",
-	)
+	skipCache = addCacheFlag(cmd)
 	return cmd
 }

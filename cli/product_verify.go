@@ -37,6 +37,6 @@ func newProductVerifyCommand(w io.Writer) *cobra.Command {
 			return err
 		},
 	}
-	skipCache = cmd.Flags().Bool("skip-cache", false, "Pull directly from store even if a local copy exists in the cache")
+	skipCache = addCacheFlag(cmd)
 	return cmd
 }

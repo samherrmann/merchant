@@ -57,7 +57,7 @@ func newProductPullCommand() *cobra.Command {
 		},
 	}
 	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
-	skipCache = cmd.Flags().Bool("skip-cache", false, "Pull directly from store even if a local copy exists in the cache")
+	skipCache = addCacheFlag(cmd)
 	return cmd
 }
 
