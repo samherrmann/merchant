@@ -1,5 +1,5 @@
-// Package cmd defines the CLI commands.
-package cmd
+// Package cli defines the CLI commands.
+package cli
 
 import (
 	"os"
