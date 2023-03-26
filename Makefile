@@ -29,6 +29,9 @@ tar:
 zip:
 	cd $(dist) && zip -r ../$(name)-$(target).zip *
 
+lint:
+	staticcheck -checks=all ./...
+
 # Resources:
 # List of available target OSs and architectures:
 # https://golang.org/doc/install/source#environment
