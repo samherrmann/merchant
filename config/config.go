@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/samherrmann/merchant/editor"
+	"github.com/samherrmann/merchant/osutil"
 	"github.com/samherrmann/merchant/shopify"
 )
 
@@ -166,17 +167,7 @@ func mkDefaultDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return mkdir(root)
-}
-
-// mkdir creates and returns the app configuration directory. No error is
-// returned if the directory already exists.
-func mkdir(root string) (string, error) {
-	dir := filepath.Join(root, AppName)
-	if err := os.MkdirAll(dir, 0700); err != nil {
-		return "", err
-	}
-	return dir, nil
+	return osutil.MakeUserDir(root, AppName)
 }
 
 // joinFilename joins the configuration filename with dir.

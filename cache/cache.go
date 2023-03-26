@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
+	"github.com/samherrmann/merchant/osutil"
 )
 
 const (
@@ -26,9 +27,7 @@ func Dir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cacheDir := filepath.Join(cacheRootDir, AppName)
-	err = os.MkdirAll(cacheDir, os.ModePerm)
-	return cacheDir, err
+	return osutil.MakeUserDir(cacheRootDir, AppName)
 }
 
 func ReadProductFile(id int64) (*goshopify.Product, error) {

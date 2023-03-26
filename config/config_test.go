@@ -3,7 +3,6 @@ package config
 
 import (
 	"encoding/json"
-	"io/fs"
 	"os"
 	"reflect"
 	"testing"
@@ -129,50 +128,6 @@ func Test_initFile(t *testing.T) {
 		raw := &json.RawMessage{}
 		if err := json.Unmarshal(b, raw); err != nil {
 			t.Fatal(err)
-		}
-	})
-}
-
-func Test_mkdir(t *testing.T) {
-
-	t.Run("should create directory", func(t *testing.T) {
-		tempDir := t.TempDir()
-		dir, err := mkdir(tempDir)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err := os.Stat(dir); err != nil {
-			t.Fatal(err)
-		}
-	})
-	t.Run("should not return error if dir already exists", func(t *testing.T) {
-		tempDir := t.TempDir()
-		dir, err := mkdir(tempDir)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err := os.Stat(dir); err != nil {
-			t.Fatal(err)
-		}
-		_, err = mkdir(tempDir)
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	t.Run("should only give owner permission", func(t *testing.T) {
-		tempDir := t.TempDir()
-		dir, err := mkdir(tempDir)
-		if err != nil {
-			t.Fatal(err)
-		}
-		stat, err := os.Stat(dir)
-		if err != nil {
-			t.Fatal(err)
-		}
-		got := stat.Mode()
-		want := fs.ModeDir | 0700
-		if got != want {
-			t.Fatalf("got %v, want %v", got, want)
 		}
 	})
 }
