@@ -13,6 +13,8 @@ import (
 func newProductPullCommand() *cobra.Command {
 	var skipCache *bool
 	var openFile *bool
+	var metafields *bool
+
 	cmd := &cobra.Command{
 		Use:   "pull <id>|inventory",
 		Short: "Fetch product and its metadata from the store",
@@ -29,7 +31,7 @@ func newProductPullCommand() *cobra.Command {
 			store := shopify.NewClient(&cfg.Store)
 			arg := args[0]
 			if arg == "inventory" {
-				products, err := store.GetInventory(*skipCache)
+				products, err := store.GetInventory(*skipCache, *metafields)
 				if err != nil {
 					return err
 				}
@@ -39,7 +41,7 @@ func newProductPullCommand() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				product, err := store.GetProduct(productID, *skipCache)
+				product, err := store.GetProduct(productID, *skipCache, *metafields)
 				if err != nil {
 					return err
 				}
@@ -58,6 +60,7 @@ func newProductPullCommand() *cobra.Command {
 	}
 	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
 	skipCache = addCacheFlag(cmd)
+	metafields = addMetafields(cmd)
 	return cmd
 }
 

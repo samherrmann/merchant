@@ -29,12 +29,11 @@ func NewClient(c *Configuration) *Client {
 	}
 }
 
-func (c *Client) GetProduct(id int64, skipCache bool) (*goshopify.Product, error) {
-	return getProduct(c.Product, id, true)
-}
-
-func (c *Client) GetProductWithMetafields(id int64) (*goshopify.Product, error) {
-	return getProductWithMetafields(c.Product, c.Variant, id)
+func (c *Client) GetProduct(id int64, skipCache bool, metafields bool) (*goshopify.Product, error) {
+	if metafields {
+		getProductWithMetafields(c.Product, c.Variant, id, skipCache)
+	}
+	return getProduct(c.Product, id, skipCache)
 }
 
 func (c *Client) GetVariantBySKU(sku string) (*goshopify.Variant, error) {
@@ -55,12 +54,11 @@ func (c *Client) GetVariantByBarcode(barcode string) (*goshopify.Variant, error)
 	)
 }
 
-func (c *Client) GetInventory(skipCache bool) ([]goshopify.Product, error) {
+func (c *Client) GetInventory(skipCache bool, metafields bool) ([]goshopify.Product, error) {
+	if metafields {
+		return getInventoryWithMetafields(c.Product, c.Variant, skipCache)
+	}
 	return getInventory(c.Product, skipCache)
-}
-
-func (c *Client) GetInventoryWithMetafields() ([]goshopify.Product, error) {
-	return getInventoryWithMetafields(c.Product, c.Variant)
 }
 
 // GetVariantCount returns the total number of variants for all products.

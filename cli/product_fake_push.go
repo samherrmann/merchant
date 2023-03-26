@@ -14,6 +14,7 @@ import (
 
 func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command {
 	var skipCache *bool
+
 	cmd := &cobra.Command{
 		Use:   "fake-push <filename>",
 		Short: "Print the data that the push command would send to the store",
@@ -31,7 +32,7 @@ func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command
 			if err != nil {
 				return err
 			}
-			inventory, err := store.GetInventory(*skipCache)
+			inventory, err := store.GetInventory(*skipCache, false)
 			if err != nil {
 				return err
 			}

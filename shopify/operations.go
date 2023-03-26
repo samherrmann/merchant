@@ -35,12 +35,15 @@ func getProduct(service ProductService, id int64, skipCache bool) (*Product, err
 	return product, err
 }
 
-func getProductWithMetafields(pService ProductService, vService VariantService, id int64) (*Product, error) {
-	product, err := pService.Get(id, nil)
+func getProductWithMetafields(pService ProductService, vService VariantService, id int64, skipCache bool) (*Product, error) {
+	product, err := getProduct(pService, id, skipCache)
 	if err != nil {
 		return nil, err
 	}
 	if err := attachMetafields(pService, vService, product); err != nil {
+		return nil, err
+	}
+	if err := cache.WriteProductFile(product); err != nil {
 		return nil, err
 	}
 	return product, nil
@@ -67,8 +70,8 @@ func getInventory(service ProductService, skipCache bool) ([]Product, error) {
 	return products, err
 }
 
-func getInventoryWithMetafields(pService ProductService, vService VariantService) ([]Product, error) {
-	products, err := listProducts(pService, nil)
+func getInventoryWithMetafields(pService ProductService, vService VariantService, skipCache bool) ([]Product, error) {
+	products, err := getInventory(pService, skipCache)
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +82,9 @@ func getInventoryWithMetafields(pService ProductService, vService VariantService
 		}
 		// TODO check if this is necessary.
 		products[i] = product
+	}
+	if err := cache.WriteInventoryFile(products); err != nil {
+		return nil, err
 	}
 	return products, nil
 }
