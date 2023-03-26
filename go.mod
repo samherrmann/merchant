@@ -2,10 +2,8 @@ module github.com/samherrmann/merchant
 
 go 1.20
 
-replace github.com/bold-commerce/go-shopify/v3 => github.com/samherrmann/go-shopify/v3 v3.11.2
-
 require (
-	github.com/bold-commerce/go-shopify/v3 v3.11.0
+	github.com/bold-commerce/go-shopify/v3 v3.13.0
 	github.com/shopspring/decimal v0.0.0-20200105231215-408a2507e114
 	github.com/spf13/cobra v1.2.1
 )
