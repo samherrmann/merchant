@@ -8,7 +8,6 @@ import (
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/merchant/cache"
-	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/memdb"
 )
 
@@ -20,7 +19,7 @@ type Client struct {
 	*goshopify.Client
 }
 
-func NewClient(c *config.StoreConfig) *Client {
+func NewClient(c *Configuration) *Client {
 	return &Client{
 		Client: goshopify.NewClient(
 			goshopify.App{

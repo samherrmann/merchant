@@ -15,6 +15,9 @@ func newCacheRemoveCommand() *cobra.Command {
 		Short:   "Remove file from cache",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Command usage is correct at this point.
+			cmd.SilenceUsage = true
+
 			dir, err := cache.Dir()
 			if err != nil {
 				return err

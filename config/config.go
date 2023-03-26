@@ -7,7 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/samherrmann/merchant/exec"
+	"github.com/samherrmann/merchant/editor"
+	"github.com/samherrmann/merchant/shop"
 )
 
 // Build-time variables set by -ldflags.
@@ -16,9 +17,25 @@ const (
 	Version = "dev"
 )
 
+// New returns a new configuration.
+func New() *Config {
+	// We need to manually initialize slices to be able to marshal the config to
+	// JSON without fields that are of type array set to null.
+	// https://github.com/golang/go/issues/27589
+	return &Config{
+		Store: shop.Configuration{},
+		MetafieldDefinitions: MetafieldDefinitions{
+			Product: []MetafieldDefinition{},
+			Variant: []MetafieldDefinition{},
+		},
+		SpreadsheetEditor: DefaultSpreadsheetEditor,
+		TextEditor:        DefaultTextEditor,
+	}
+}
+
 type Config struct {
-	// List of Shopify stores.
-	Stores StoreConfigs `json:"stores"`
+	// Store contains the Shopify store access information.
+	Store shop.Configuration `json:"store"`
 	// MetafieldDefinitions contains metafield definitions.
 	MetafieldDefinitions MetafieldDefinitions `json:"metafieldDefinitions"`
 	// TextEditorCmd is the command that launches the text editor.
@@ -27,30 +44,20 @@ type Config struct {
 	SpreadsheetEditor []string `json:"spreadsheetEditor"`
 }
 
-type StoreConfig struct {
-	// Name is the name of the Shopify store as shown in
-	// <store-name>.myshopify.com.
-	Name string `json:"name"`
-	// APIKey is the API key for the Shopify store.
-	APIKey string `json:"apiKey"`
-	// Password is the password associated with the API key.
-	Password string `json:"password"`
-}
-
-type StoreConfigs []StoreConfig
-
-// Get returns the configuration for the given name. The first configuration is
-// returned if name is an empty string. Nil is returned if no configuration can
-// be found for the given name.
-func (configs StoreConfigs) Get(name string) *StoreConfig {
-	if name == "" {
-		return &configs[0]
+// UnmarshalJSON implements the [encoding/json.Unmarshaler] interface.
+func (c *Config) UnmarshalJSON(b []byte) error {
+	type alias Config
+	a := alias{}
+	if err := json.Unmarshal(b, &a); err != nil {
+		return err
 	}
-	for _, c := range configs {
-		if c.Name == name {
-			return &c
-		}
+	if len(a.SpreadsheetEditor) == 0 {
+		a.SpreadsheetEditor = DefaultSpreadsheetEditor
 	}
+	if len(a.TextEditor) == 0 {
+		a.TextEditor = DefaultTextEditor
+	}
+	*c = Config(a)
 	return nil
 }
 
@@ -71,48 +78,23 @@ type MetafieldDefinition struct {
 	Namespace string `json:"namespace"`
 }
 
-func Load() (*Config, error) {
-	filename, err := Filename()
+// InitFile write a default configuration file. os.ErrExist is returned if the
+// file already exists.
+func InitFile() (*Config, error) {
+	dir, err := mkDefaultDir()
 	if err != nil {
 		return nil, err
 	}
-
-	bytes, err := os.ReadFile(filename)
-	if os.IsNotExist(err) {
-		if err := writeSampleFile(filename); err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf(
-			"%v not found, but a sample file was created for you. Run '%v config open' to edit the file",
-			filename,
-			AppName,
-		)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("failed to read %v: %w", filename, err)
-	}
-
-	cFile := &Config{}
-	if err := json.Unmarshal(bytes, cFile); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal %v: %w", filename, err)
-	}
-	return cFile, nil
+	return initFile(dir)
 }
 
-func Filename() (string, error) {
-	dir, err := Dir()
+// Load loads the configuration from file.
+func Load() (*Config, error) {
+	dir, err := mkDefaultDir()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return filepath.Join(dir, AppName) + ".json", nil
-}
-
-func Dir() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, AppName), nil
+	return load(dir)
 }
 
 func FindMetafieldDefinition(defs []MetafieldDefinition, namespace string, key string) *MetafieldDefinition {
@@ -125,29 +107,79 @@ func FindMetafieldDefinition(defs []MetafieldDefinition, namespace string, key s
 }
 
 // OpenInTextEditor opens the configuration file in a text editor.
-func OpenInTextEditor() error {
-	dir, err := Dir()
+func (c *Config) OpenInTextEditor() error {
+	dir, err := mkDefaultDir()
 	if err != nil {
 		return err
 	}
-	filename := filepath.Join(dir, AppName) + ".json"
-	return exec.RunTextEditor(filename)
+	return c.newTextEditor().Open(joinFilename(dir))
 }
 
-// writeSampleFile write a default configuration file.
-func writeSampleFile(filename string) error {
-	// https://github.com/golang/go/issues/27589
-	c := &Config{
-		MetafieldDefinitions: MetafieldDefinitions{
-			Product: []MetafieldDefinition{},
-			Variant: []MetafieldDefinition{},
-		},
-		SpreadsheetEditor: []string{},
-		TextEditor:        []string{},
+// initFile write the default configuration file to the given directory.
+// os.ErrExist is returned if the file already exists.
+func initFile(dir string) (*Config, error) {
+	filename := joinFilename(dir)
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
+	if err != nil {
+		return nil, err
 	}
+	defer f.Close()
+	c := New()
 	bytes, err := json.MarshalIndent(c, "", " ")
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return os.WriteFile(filename, bytes, 0644)
+	_, err = f.Write(bytes)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
+}
+
+// Load loads the configuration from file located in dir.
+func load(dir string) (*Config, error) {
+	filename := joinFilename(dir)
+	bytes, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	cfg := &Config{}
+	if err := json.Unmarshal(bytes, cfg); err != nil {
+		return nil, fmt.Errorf("file %v: %w", filename, err)
+	}
+	return cfg, nil
+}
+
+func (c *Config) newTextEditor() editor.Editor {
+	cmd := c.TextEditor
+	if len(cmd) == 0 {
+		cmd = DefaultTextEditor
+	}
+	return editor.New(cmd...)
+
+}
+
+// mkDefaultDir creates and returns the app configuration directory, rooted in
+// the default OS directory to use for user-specific configuration data.
+func mkDefaultDir() (string, error) {
+	root, err := os.UserConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return mkdir(root)
+}
+
+// mkdir creates and returns the app configuration directory. No error is
+// returned if the directory already exists.
+func mkdir(root string) (string, error) {
+	dir := filepath.Join(root, AppName)
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return "", err
+	}
+	return dir, nil
+}
+
+// joinFilename joins the configuration filename with dir.
+func joinFilename(dir string) string {
+	return filepath.Join(dir, AppName) + ".json"
 }

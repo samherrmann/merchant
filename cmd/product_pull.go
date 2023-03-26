@@ -3,8 +3,10 @@ package cmd
 import (
 	"strconv"
 
+	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/csv"
-	"github.com/samherrmann/merchant/exec"
+	"github.com/samherrmann/merchant/editor"
+	"github.com/samherrmann/merchant/shop"
 	"github.com/spf13/cobra"
 )
 
@@ -17,28 +19,39 @@ func newProductPullCommand() *cobra.Command {
 		Long:  "Fetch a single product or the entire product inventory from the store. The product metafields are included.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Command usage is correct at this point.
+			cmd.SilenceUsage = true
+
+			cfg, err := config.Load()
+			if err != nil {
+				return err
+			}
+			store := shop.NewClient(&cfg.Store)
 			arg := args[0]
 			if arg == "inventory" {
-				products, err := shopClient.GetInventory(*skipCache)
+				products, err := store.GetInventory(*skipCache)
 				if err != nil {
 					return err
 				}
 				csv.WriteInventoryFile(products)
-				return nil
+			} else {
+				productID, err := strconv.ParseInt(arg, 10, 64)
+				if err != nil {
+					return err
+				}
+				product, err := store.GetProduct(productID, *skipCache)
+				if err != nil {
+					return err
+				}
+				if err := csv.WriteProductFile(product); err != nil {
+					return err
+				}
 			}
-			productID, err := strconv.ParseInt(arg, 10, 64)
-			if err != nil {
-				return err
-			}
-			product, err := shopClient.GetProduct(productID, *skipCache)
-			if err != nil {
-				return err
-			}
-			return csv.WriteProductFile(product)
-		},
-		PostRunE: func(cmd *cobra.Command, args []string) error {
 			if *openFile {
-				return exec.RunSpreadsheetEditor(args[0] + ".csv")
+				editor := newSpreadsheetEditor(cfg.SpreadsheetEditor...)
+				if err := editor.Open(arg + ".csv"); err != nil {
+					return err
+				}
 			}
 			return nil
 		},
@@ -46,4 +59,11 @@ func newProductPullCommand() *cobra.Command {
 	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
 	skipCache = cmd.Flags().Bool("skip-cache", false, "Pull directly from store even if a local copy exists in the cache")
 	return cmd
+}
+
+func newSpreadsheetEditor(cmd ...string) editor.Editor {
+	if len(cmd) == 0 {
+		cmd = config.DefaultSpreadsheetEditor
+	}
+	return editor.New(cmd...)
 }

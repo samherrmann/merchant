@@ -12,11 +12,10 @@ import (
 	"text/tabwriter"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/merchant/config"
-	"github.com/samherrmann/merchant/exec"
 )
 
 const (
+	AppName           = "merchant"
 	inventoryFilename = "inventory.json"
 )
 
@@ -27,7 +26,7 @@ func Dir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	cacheDir := filepath.Join(cacheRootDir, config.AppName)
+	cacheDir := filepath.Join(cacheRootDir, AppName)
 	err = os.MkdirAll(cacheDir, os.ModePerm)
 	return cacheDir, err
 }
@@ -90,16 +89,6 @@ func PrintEntries(w io.Writer) error {
 	}
 	tw.Flush()
 	return nil
-}
-
-// OpenFileInTextEditor opens a cache file in a text editor.
-func OpenFileInTextEditor(filename string) error {
-	dir, err := Dir()
-	if err != nil {
-		return err
-	}
-	filename = filepath.Join(dir, filename)
-	return exec.RunTextEditor(filename)
 }
 
 func readDir() ([]fs.DirEntry, error) {

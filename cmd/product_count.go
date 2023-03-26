@@ -4,19 +4,30 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/samherrmann/merchant/config"
+	"github.com/samherrmann/merchant/shop"
 	"github.com/spf13/cobra"
 )
 
 func newProductCountCommand(w io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "count",
+		Args:  cobra.NoArgs,
 		Short: "Count total number of products and variants in the store",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			productCount, err := shopClient.Product.Count(nil)
+			// Command usage is correct at this point.
+			cmd.SilenceUsage = true
+
+			cfg, err := config.Load()
 			if err != nil {
 				return err
 			}
-			variantCount, err := shopClient.GetVariantCount()
+			store := shop.NewClient(&cfg.Store)
+			productCount, err := store.Product.Count(nil)
+			if err != nil {
+				return err
+			}
+			variantCount, err := store.GetVariantCount()
 			if err != nil {
 				return err
 			}

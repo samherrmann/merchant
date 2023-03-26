@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/memdb"
+	"github.com/samherrmann/merchant/shop"
 	"github.com/spf13/cobra"
 )
 
@@ -18,7 +20,13 @@ func newProductVerifyCommand(w io.Writer) *cobra.Command {
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
 
-			inventory, err := shopClient.GetInventory(*skipCache)
+			cfg, err := config.Load()
+			if err != nil {
+				return err
+			}
+			store := shop.NewClient(&cfg.Store)
+
+			inventory, err := store.GetInventory(*skipCache)
 			if err != nil {
 				return err
 			}

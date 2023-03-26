@@ -5,8 +5,10 @@ import (
 	"io"
 	"os"
 
+	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/csv"
 	"github.com/samherrmann/merchant/memdb"
+	"github.com/samherrmann/merchant/shop"
 	"github.com/spf13/cobra"
 )
 
@@ -20,11 +22,16 @@ func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
 
+			cfg, err := config.Load()
+			if err != nil {
+				return err
+			}
+			store := shop.NewClient(&cfg.Store)
 			incoming, err := csv.ReadProducts(args[0])
 			if err != nil {
 				return err
 			}
-			inventory, err := shopClient.GetInventory(*skipCache)
+			inventory, err := store.GetInventory(*skipCache)
 			if err != nil {
 				return err
 			}

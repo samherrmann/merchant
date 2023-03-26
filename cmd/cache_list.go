@@ -13,6 +13,9 @@ func newCacheListCommand() *cobra.Command {
 		Aliases: []string{"ls"},
 		Short:   "List files in cache",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Command usage is correct at this point.
+			cmd.SilenceUsage = true
+
 			return cache.PrintEntries(os.Stdout)
 		},
 	}
