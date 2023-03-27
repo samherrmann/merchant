@@ -17,7 +17,7 @@ import (
 
 const (
 	AppName           = "merchant"
-	inventoryFilename = "inventory.json"
+	InventoryFilename = "inventory.json"
 )
 
 // Dir returns the path to the cache directory. If the directory does not exist,
@@ -30,44 +30,20 @@ func Dir() (string, error) {
 	return osutil.MakeUserDir(cacheRootDir, AppName)
 }
 
-func ReadProductFile(id int64) (*goshopify.Product, error) {
-	bytes, err := readFile(fmt.Sprintf("%v.json", id))
-	if err != nil {
-		return nil, err
-	}
-	products := &goshopify.Product{}
-	if err = json.Unmarshal(bytes, products); err != nil {
-		return nil, err
-	}
-	return products, nil
-}
-
 func ReadInventoryFile() ([]goshopify.Product, error) {
-	bytes, err := readFile(inventoryFilename)
+	b, err := readFile(InventoryFilename)
 	if err != nil {
 		return nil, err
 	}
 	products := []goshopify.Product{}
-	if err = json.Unmarshal(bytes, &products); err != nil {
+	if err = json.Unmarshal(b, &products); err != nil {
 		return nil, err
 	}
 	return products, nil
 }
 
-func WriteProductFile(product *goshopify.Product) error {
-	bytes, err := json.MarshalIndent(product, "", "  ")
-	if err != nil {
-		return err
-	}
-	return writeFile(fmt.Sprintf("%v.json", product.ID), bytes)
-}
-
 func WriteInventoryFile(products []goshopify.Product) error {
-	bytes, err := json.MarshalIndent(products, "", "  ")
-	if err != nil {
-		return err
-	}
-	return writeFile(inventoryFilename, bytes)
+	return writeJSONFile(InventoryFilename, products)
 }
 
 // PrintEntries writes all cache entries to the given writer.
@@ -107,7 +83,12 @@ func readFile(filename string) ([]byte, error) {
 	return os.ReadFile(path)
 }
 
-func writeFile(filename string, data []byte) error {
+func writeJSONFile(filename string, data any) error {
+	b, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return err
+	}
+
 	dir, err := Dir()
 	if err != nil {
 		return err
@@ -120,7 +101,7 @@ func writeFile(filename string, data []byte) error {
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return err
 	}
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, b, 0644)
 }
 
 // removeExt returns filename without the extension

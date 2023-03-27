@@ -16,39 +16,6 @@ type Product = goshopify.Product
 type Variant = goshopify.Variant
 type ListOptions = goshopify.ListOptions
 
-func getProduct(service ProductService, id int64, skipCache bool) (*Product, error) {
-	if skipCache {
-		p, err := service.Get(id, nil)
-		if err != nil {
-			return nil, err
-		}
-		if err := cache.WriteProductFile(p); err != nil {
-			return nil, err
-		}
-	}
-	product, err := cache.ReadProductFile(id)
-	// Fall back to pulling product from store if no cache exists, but only if
-	// skipCache is false to prevent an infinite loop.
-	if os.IsNotExist(err) && !skipCache {
-		return getProduct(service, id, true)
-	}
-	return product, err
-}
-
-func getProductWithMetafields(pService ProductService, vService VariantService, id int64, skipCache bool) (*Product, error) {
-	product, err := getProduct(pService, id, skipCache)
-	if err != nil {
-		return nil, err
-	}
-	if err := attachMetafields(pService, vService, product); err != nil {
-		return nil, err
-	}
-	if err := cache.WriteProductFile(product); err != nil {
-		return nil, err
-	}
-	return product, nil
-}
-
 // getInventory gets all products from the store and stores them in the cache
 // file.
 func getInventory(service ProductService, skipCache bool) ([]Product, error) {

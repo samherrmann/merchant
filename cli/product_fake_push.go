@@ -22,13 +22,14 @@ func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
+			filename := args[0]
 
 			cfg, err := config.Load()
 			if err != nil {
 				return err
 			}
 			store := shopify.NewClient(&cfg.Store)
-			incoming, err := csv.ReadProducts(args[0])
+			incoming, err := csv.ReadProducts(filename)
 			if err != nil {
 				return err
 			}

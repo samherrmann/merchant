@@ -9,20 +9,16 @@ import (
 	"github.com/samherrmann/merchant/collection"
 )
 
-func WriteProductFile(product *goshopify.Product) error {
-	rows, err := makeRowsFromProducts([]goshopify.Product{*product})
-	if err != nil {
-		return err
-	}
-	return writeFile(fmt.Sprintf("%v.csv", product.ID), rows)
-}
+const (
+	InventoryFilename = "inventory.csv"
+)
 
 func WriteInventoryFile(products []goshopify.Product) error {
 	rows, err := makeRowsFromProducts(products)
 	if err != nil {
 		return err
 	}
-	return writeFile("inventory.csv", rows)
+	return writeFile(InventoryFilename, rows)
 }
 
 func makeRowsFromProducts(products []goshopify.Product) ([][]string, error) {

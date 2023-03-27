@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/samherrmann/merchant/config"
 	"github.com/samherrmann/merchant/csv"
 	"github.com/samherrmann/merchant/editor"
@@ -16,10 +14,10 @@ func newProductPullCommand() *cobra.Command {
 	var metafields *bool
 
 	cmd := &cobra.Command{
-		Use:   "pull <id>|inventory",
-		Short: "Fetch product and its metadata from the store",
-		Long:  "Fetch a single product or the entire product inventory from the store. The product metafields are included.",
-		Args:  cobra.ExactArgs(1),
+		Use:   "pull",
+		Short: "Fetch products and their metadata from the store",
+		Long:  "Fetch all products from the store. Metafields may optionally be included",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
@@ -29,29 +27,19 @@ func newProductPullCommand() *cobra.Command {
 				return err
 			}
 			store := shopify.NewClient(&cfg.Store)
-			arg := args[0]
-			if arg == "inventory" {
-				products, err := store.GetInventory(*skipCache, *metafields)
-				if err != nil {
-					return err
-				}
-				csv.WriteInventoryFile(products)
-			} else {
-				productID, err := strconv.ParseInt(arg, 10, 64)
-				if err != nil {
-					return err
-				}
-				product, err := store.GetProduct(productID, *skipCache, *metafields)
-				if err != nil {
-					return err
-				}
-				if err := csv.WriteProductFile(product); err != nil {
-					return err
-				}
+
+			products, err := store.GetInventory(*skipCache, *metafields)
+			if err != nil {
+				return err
 			}
+
+			if err := csv.WriteInventoryFile(products); err != nil {
+				return err
+			}
+
 			if *openFile {
 				editor := newSpreadsheetEditor(cfg.SpreadsheetEditor...)
-				if err := editor.Open(arg + ".csv"); err != nil {
+				if err := editor.Open(csv.InventoryFilename); err != nil {
 					return err
 				}
 			}

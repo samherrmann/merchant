@@ -29,13 +29,6 @@ func NewClient(c *Configuration) *Client {
 	}
 }
 
-func (c *Client) GetProduct(id int64, skipCache bool, metafields bool) (*goshopify.Product, error) {
-	if metafields {
-		getProductWithMetafields(c.Product, c.Variant, id, skipCache)
-	}
-	return getProduct(c.Product, id, skipCache)
-}
-
 func (c *Client) GetVariantBySKU(sku string) (*goshopify.Variant, error) {
 	return searchVariant(
 		c.Product,
