@@ -22,18 +22,18 @@ func Execute() error {
 	configCmd.AddCommand(
 		newConfigOpenCommand(),
 	)
-	productCmd := newProductCommand()
-	productCmd.AddCommand(
-		newProductCountCommand(os.Stdout),
-		newProductFakePushCommand(os.Stdout, config.AppName+".push.json"),
-		newProductPullCommand(),
-		newProductPushCommand(),
-		newProductVerifyCommand(os.Stdout),
+	productsCmd := newProductsCommand()
+	productsCmd.AddCommand(
+		newProductsCountCommand(os.Stdout),
+		newProductsFakePushCommand(os.Stdout, config.AppName+".push.json"),
+		newProductsPullCommand(),
+		newProductsPushCommand(),
+		newProductsVerifyCommand(os.Stdout),
 	)
 	rootCmd.AddCommand(
 		cacheCmd,
 		configCmd,
-		productCmd,
+		productsCmd,
 		newVersionCommand(config.AppName, config.Version),
 	)
 	return rootCmd.Execute()

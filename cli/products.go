@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductCommand() *cobra.Command {
+func newProductsCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "product",
+		Use:   "products",
 		Short: "Manage products",
 	}
 }

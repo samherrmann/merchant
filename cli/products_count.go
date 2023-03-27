@@ -5,17 +5,15 @@ import (
 	"io"
 
 	"github.com/samherrmann/merchant/config"
-	"github.com/samherrmann/merchant/memdb"
 	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
-func newProductVerifyCommand(w io.Writer) *cobra.Command {
-	var skipCache *bool
+func newProductsCountCommand(w io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "verify",
-		Short: "Verifies the integrity of products and variants",
+		Use:   "count",
 		Args:  cobra.NoArgs,
+		Short: "Count total number of products and variants in the store",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
@@ -25,18 +23,19 @@ func newProductVerifyCommand(w io.Writer) *cobra.Command {
 				return err
 			}
 			store := shopify.NewClient(&cfg.Store)
-
-			inventory, err := store.GetInventory(*skipCache, false)
+			productCount, err := store.Product.Count(nil)
 			if err != nil {
 				return err
 			}
-			_, err = memdb.New(inventory)
-			if err == nil {
-				fmt.Fprintln(w, "Everything looks good!")
+			variantCount, err := store.GetVariantCount()
+			if err != nil {
+				return err
 			}
-			return err
+			fmt.Fprintf(w, "Products: %v\n", productCount)
+			fmt.Fprintf(w, "Variants: %v\n", variantCount)
+
+			return nil
 		},
 	}
-	skipCache = addCacheFlag(cmd)
 	return cmd
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductPushCommand() *cobra.Command {
+func newProductsPushCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "push <filename>",
 		Short: "Update products in store with data from CSV file",

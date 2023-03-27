@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductPullCommand() *cobra.Command {
+func newProductsPullCommand() *cobra.Command {
 	var skipCache *bool
 	var openFile *bool
 	var metafields *bool

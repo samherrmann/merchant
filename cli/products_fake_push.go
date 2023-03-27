@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductFakePushCommand(output io.Writer, filename string) *cobra.Command {
+func newProductsFakePushCommand(output io.Writer, filename string) *cobra.Command {
 	var skipCache *bool
 
 	cmd := &cobra.Command{
