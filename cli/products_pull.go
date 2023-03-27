@@ -28,18 +28,18 @@ func newProductsPullCommand() *cobra.Command {
 			}
 			store := shopify.NewClient(&cfg.Store)
 
-			products, err := store.GetInventory(*skipCache, *metafields)
+			products, err := store.GetProducts(*skipCache, *metafields)
 			if err != nil {
 				return err
 			}
 
-			if err := csv.WriteInventoryFile(products); err != nil {
+			if err := csv.WriteProductsFile(products); err != nil {
 				return err
 			}
 
 			if *openFile {
 				editor := newSpreadsheetEditor(cfg.SpreadsheetEditor...)
-				if err := editor.Open(csv.InventoryFilename); err != nil {
+				if err := editor.Open(csv.ProductsFilename); err != nil {
 					return err
 				}
 			}

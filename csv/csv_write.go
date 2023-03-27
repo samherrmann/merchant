@@ -10,15 +10,15 @@ import (
 )
 
 const (
-	InventoryFilename = "inventory.csv"
+	ProductsFilename = "products.csv"
 )
 
-func WriteInventoryFile(products []goshopify.Product) error {
+func WriteProductsFile(products []goshopify.Product) error {
 	rows, err := makeRowsFromProducts(products)
 	if err != nil {
 		return err
 	}
-	return writeFile(InventoryFilename, rows)
+	return writeFile(ProductsFilename, rows)
 }
 
 func makeRowsFromProducts(products []goshopify.Product) ([][]string, error) {

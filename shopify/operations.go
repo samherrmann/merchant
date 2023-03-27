@@ -16,29 +16,29 @@ type Product = goshopify.Product
 type Variant = goshopify.Variant
 type ListOptions = goshopify.ListOptions
 
-// getInventory gets all products from the store and stores them in the cache
+// getProducts gets all products from the store and stores them in the cache
 // file.
-func getInventory(service ProductService, skipCache bool) ([]Product, error) {
+func getProducts(service ProductService, skipCache bool) ([]Product, error) {
 	if skipCache {
 		p, err := listProducts(service, nil)
 		if err != nil {
 			return nil, err
 		}
-		if err := cache.WriteInventoryFile(p); err != nil {
+		if err := cache.WriteProductsFile(p); err != nil {
 			return nil, err
 		}
 	}
-	products, err := cache.ReadInventoryFile()
+	products, err := cache.ReadProductsFile()
 	// Fall back to pulling product from store if no cache exists, but only if
 	// skipCache is false to prevent an infinite loop.
 	if os.IsNotExist(err) && !skipCache {
-		return getInventory(service, true)
+		return getProducts(service, true)
 	}
 	return products, err
 }
 
-func getInventoryWithMetafields(pService ProductService, vService VariantService, skipCache bool) ([]Product, error) {
-	products, err := getInventory(pService, skipCache)
+func getProductsWithMetafields(pService ProductService, vService VariantService, skipCache bool) ([]Product, error) {
+	products, err := getProducts(pService, skipCache)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func getInventoryWithMetafields(pService ProductService, vService VariantService
 		// TODO check if this is necessary.
 		products[i] = product
 	}
-	if err := cache.WriteInventoryFile(products); err != nil {
+	if err := cache.WriteProductsFile(products); err != nil {
 		return nil, err
 	}
 	return products, nil
@@ -90,7 +90,7 @@ func updateProducts(
 ) error {
 	// Get latest inventory from live store so that we don't accidentally make
 	// updates based on an outdated cache.
-	inventory, err := getInventory(pService, true)
+	inventory, err := getProducts(pService, true)
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func attachMetafields(pService ProductService, vService VariantService, product 
 }
 
 func searchVariant(service ProductService, fn func(v *Variant) bool) (*Variant, error) {
-	inventory, err := getInventory(service, false)
+	inventory, err := getProducts(service, false)
 	if err != nil {
 		return nil, err
 	}

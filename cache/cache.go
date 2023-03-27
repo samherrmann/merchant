@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	AppName           = "merchant"
-	InventoryFilename = "inventory.json"
+	AppName          = "merchant"
+	ProductsFilename = "products.json"
 )
 
 // Dir returns the path to the cache directory. If the directory does not exist,
@@ -30,8 +30,8 @@ func Dir() (string, error) {
 	return osutil.MakeUserDir(cacheRootDir, AppName)
 }
 
-func ReadInventoryFile() ([]goshopify.Product, error) {
-	b, err := readFile(InventoryFilename)
+func ReadProductsFile() ([]goshopify.Product, error) {
+	b, err := readFile(ProductsFilename)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +42,8 @@ func ReadInventoryFile() ([]goshopify.Product, error) {
 	return products, nil
 }
 
-func WriteInventoryFile(products []goshopify.Product) error {
-	return writeJSONFile(InventoryFilename, products)
+func WriteProductsFile(products []goshopify.Product) error {
+	return writeJSONFile(ProductsFilename, products)
 }
 
 // PrintEntries writes all cache entries to the given writer.
