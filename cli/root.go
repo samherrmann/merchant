@@ -14,6 +14,7 @@ func Execute() error {
 
 	cacheCmd := newCacheCommand()
 	cacheCmd.AddCommand(
+		newCacheClearCommand(),
 		newCacheListCommand(),
 		newCacheOpenCommand(),
 		newCacheRemoveCommand(),

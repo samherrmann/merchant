@@ -11,7 +11,6 @@ import (
 )
 
 func newProductsVerifyCommand(w io.Writer) *cobra.Command {
-	var skipCache *bool
 	cmd := &cobra.Command{
 		Use:   "verify",
 		Short: "Verifies the integrity of products and variants",
@@ -26,7 +25,7 @@ func newProductsVerifyCommand(w io.Writer) *cobra.Command {
 			}
 			store := shopify.NewClient(&cfg.Store)
 
-			inventory, err := store.GetProducts(*skipCache, false)
+			inventory, err := store.GetProducts(false)
 			if err != nil {
 				return err
 			}
@@ -37,6 +36,5 @@ func newProductsVerifyCommand(w io.Writer) *cobra.Command {
 			return err
 		},
 	}
-	skipCache = addCacheFlag(cmd)
 	return cmd
 }

@@ -18,27 +18,22 @@ type ListOptions = goshopify.ListOptions
 
 // getProducts gets all products from the store and stores them in the cache
 // file.
-func getProducts(service ProductService, skipCache bool) ([]Product, error) {
-	if skipCache {
-		p, err := listProducts(service, nil)
+func getProducts(service ProductService) ([]Product, error) {
+	products, err := cache.ReadProductsFile()
+	if os.IsNotExist(err) {
+		products, err = listProducts(service, nil)
 		if err != nil {
 			return nil, err
 		}
-		if err := cache.WriteProductsFile(p); err != nil {
+		if err := cache.WriteProductsFile(products); err != nil {
 			return nil, err
 		}
-	}
-	products, err := cache.ReadProductsFile()
-	// Fall back to pulling product from store if no cache exists, but only if
-	// skipCache is false to prevent an infinite loop.
-	if os.IsNotExist(err) && !skipCache {
-		return getProducts(service, true)
 	}
 	return products, err
 }
 
-func getProductsWithMetafields(pService ProductService, vService VariantService, skipCache bool) ([]Product, error) {
-	products, err := getProducts(pService, skipCache)
+func getProductsWithMetafields(pService ProductService, vService VariantService) ([]Product, error) {
+	products, err := getProducts(pService)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +85,7 @@ func updateProducts(
 ) error {
 	// Get latest inventory from live store so that we don't accidentally make
 	// updates based on an outdated cache.
-	inventory, err := getProducts(pService, true)
+	inventory, err := getProducts(pService)
 	if err != nil {
 		return err
 	}
@@ -145,7 +140,7 @@ func attachMetafields(pService ProductService, vService VariantService, product 
 }
 
 func searchVariant(service ProductService, fn func(v *Variant) bool) (*Variant, error) {
-	inventory, err := getProducts(service, false)
+	inventory, err := getProducts(service)
 	if err != nil {
 		return nil, err
 	}
