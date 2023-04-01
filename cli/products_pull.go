@@ -10,7 +10,6 @@ import (
 
 func newProductsPullCommand() *cobra.Command {
 	var openFile *bool
-	var metafields *bool
 
 	cmd := &cobra.Command{
 		Use:   "pull",
@@ -27,7 +26,7 @@ func newProductsPullCommand() *cobra.Command {
 			}
 			store := shopify.NewClient(&cfg.Store)
 
-			products, err := store.GetProducts(*metafields)
+			products, err := store.GetProducts()
 			if err != nil {
 				return err
 			}
@@ -46,7 +45,6 @@ func newProductsPullCommand() *cobra.Command {
 		},
 	}
 	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
-	metafields = addMetafields(cmd)
 	return cmd
 }
 

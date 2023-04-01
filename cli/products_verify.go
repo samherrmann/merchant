@@ -25,7 +25,7 @@ func newProductsVerifyCommand(w io.Writer) *cobra.Command {
 			}
 			store := shopify.NewClient(&cfg.Store)
 
-			inventory, err := store.GetProducts(false)
+			inventory, err := store.GetProducts()
 			if err != nil {
 				return err
 			}

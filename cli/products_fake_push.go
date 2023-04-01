@@ -31,7 +31,7 @@ func newProductsFakePushCommand(output io.Writer, outputFilename string) *cobra.
 			if err != nil {
 				return err
 			}
-			inventory, err := store.GetProducts(false)
+			inventory, err := store.GetProducts()
 			if err != nil {
 				return err
 			}

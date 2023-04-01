@@ -1,5 +1,5 @@
 merchant
-merchant.push.json
+merchant.*.json
 dist
 *.csv
 *.swp

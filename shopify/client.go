@@ -32,6 +32,7 @@ func NewClient(c *Configuration) *Client {
 func (c *Client) GetVariantBySKU(sku string) (*goshopify.Variant, error) {
 	return searchVariant(
 		c.Product,
+		c.Variant,
 		func(v *goshopify.Variant) bool {
 			return v.Sku == sku
 		},
@@ -41,17 +42,15 @@ func (c *Client) GetVariantBySKU(sku string) (*goshopify.Variant, error) {
 func (c *Client) GetVariantByBarcode(barcode string) (*goshopify.Variant, error) {
 	return searchVariant(
 		c.Product,
+		c.Variant,
 		func(v *goshopify.Variant) bool {
 			return v.Barcode == barcode
 		},
 	)
 }
 
-func (c *Client) GetProducts(metafields bool) ([]goshopify.Product, error) {
-	if metafields {
-		return getProductsWithMetafields(c.Product, c.Variant)
-	}
-	return getProducts(c.Product)
+func (c *Client) GetProducts() ([]goshopify.Product, error) {
+	return getProducts(c.Product, c.Variant)
 }
 
 // GetVariantCount returns the total number of variants for all products.

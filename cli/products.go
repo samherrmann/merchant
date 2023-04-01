@@ -10,12 +10,3 @@ func newProductsCommand() *cobra.Command {
 		Short: "Manage products",
 	}
 }
-
-// addMetafields adds the "metafields" flag to the the given command.
-func addMetafields(cmd *cobra.Command) *bool {
-	return cmd.Flags().Bool(
-		"metafields",
-		false,
-		"Pull product and variant metafields",
-	)
-}

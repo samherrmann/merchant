@@ -2,109 +2,61 @@
 package cache
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"io/fs"
+	"errors"
 	"os"
-	"path/filepath"
-	"strings"
-	"text/tabwriter"
 
-	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/merchant/osutil"
 )
 
 const (
-	AppName          = "merchant"
-	ProductsFilename = "products.json"
+	AppName    = "merchant"
+	dbFilename = "bolt.db"
 )
 
-// Dir returns the path to the cache directory. If the directory does not exist,
-// then Dir will create it.
-func Dir() (string, error) {
+var (
+	ErrExist    = errors.New("already exists")
+	ErrNotExist = errors.New("does not exist")
+)
+
+type Cache interface {
+	Products() ProductCache
+}
+
+// New returns a new cache.
+func New() (Cache, error) {
+	dbOpener, err := newDBOpener()
+	if err != nil {
+		return nil, err
+	}
+	cache := &cache{
+		products: NewProductCache(dbOpener),
+	}
+	return cache, nil
+}
+
+type cache struct {
+	products ProductCache
+}
+
+func (c *cache) Products() ProductCache {
+	return c.products
+}
+
+// Clear removes the cache directory.
+func Clear() error {
+	dir, err := directory()
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(dir)
+}
+
+// directory returns the path to the cache directory. If the directory does not
+// exist, then directory will create it.
+func directory() (string, error) {
 	cacheRootDir, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
 	}
 	return osutil.MakeUserDir(cacheRootDir, AppName)
-}
-
-func ReadProductsFile() ([]goshopify.Product, error) {
-	b, err := readFile(ProductsFilename)
-	if err != nil {
-		return nil, err
-	}
-	products := []goshopify.Product{}
-	if err = json.Unmarshal(b, &products); err != nil {
-		return nil, err
-	}
-	return products, nil
-}
-
-func WriteProductsFile(products []goshopify.Product) error {
-	return writeJSONFile(ProductsFilename, products)
-}
-
-// PrintEntries writes all cache entries to the given writer.
-func PrintEntries(w io.Writer) error {
-	entries, err := readDir()
-	if err != nil {
-		return err
-	}
-	// Print entries table
-	tw := tabwriter.NewWriter(w, 0, 0, 3, ' ', 0)
-	fmt.Fprintf(w, "%v\t%v\n", "FILE", "MODIFIED")
-	for _, entry := range entries {
-		info, err := entry.Info()
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(w, "%v\t%v\n", removeExt(entry.Name()), info.ModTime())
-	}
-	tw.Flush()
-	return nil
-}
-
-func readDir() ([]fs.DirEntry, error) {
-	dir, err := Dir()
-	if err != nil {
-		return nil, err
-	}
-	return os.ReadDir(dir)
-}
-
-func readFile(filename string) ([]byte, error) {
-	dir, err := Dir()
-	if err != nil {
-		return nil, err
-	}
-	path := filepath.Join(dir, filename)
-	return os.ReadFile(path)
-}
-
-func writeJSONFile(filename string, data any) error {
-	b, err := json.MarshalIndent(data, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	dir, err := Dir()
-	if err != nil {
-		return err
-	}
-	// We first join the filename with the cache directory and then call
-	// filepath.Dir so that if filename includes a directory that doesn't exist
-	// yet then we can create it before writing the file.
-	path := filepath.Join(dir, filename)
-	dir = filepath.Dir(path)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
-	return os.WriteFile(path, b, 0644)
-}
-
-// removeExt returns filename without the extension
-func removeExt(filename string) string {
-	return strings.TrimSuffix(filename, filepath.Ext(filename))
 }
