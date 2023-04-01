@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductsFakePushCommand(output io.Writer, filename string) *cobra.Command {
+func newProductsFakePushCommand(output io.Writer, outputFilename string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "fake-push <filename>",
 		Short: "Print the data that the push command would send to the store",
@@ -20,14 +20,14 @@ func newProductsFakePushCommand(output io.Writer, filename string) *cobra.Comman
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Command usage is correct at this point.
 			cmd.SilenceUsage = true
-			filename := args[0]
+			inputFilename := args[0]
 
 			cfg, err := config.Load()
 			if err != nil {
 				return err
 			}
 			store := shopify.NewClient(&cfg.Store)
-			incoming, err := csv.ReadProducts(filename)
+			incoming, err := csv.ReadProducts(inputFilename)
 			if err != nil {
 				return err
 			}
@@ -43,7 +43,8 @@ func newProductsFakePushCommand(output io.Writer, filename string) *cobra.Comman
 			if err != nil {
 				return err
 			}
-			file, err := os.Create(filename)
+
+			file, err := os.Create(outputFilename)
 			if err != nil {
 				return err
 			}
@@ -54,7 +55,7 @@ func newProductsFakePushCommand(output io.Writer, filename string) *cobra.Comman
 			if err := operations.PrintSummary(output); err != nil {
 				return err
 			}
-			_, err = fmt.Fprintf(output, "\nSee file %q for details\n", filename)
+			_, err = fmt.Fprintf(output, "\nSee file %q for details\n", outputFilename)
 			return err
 		},
 	}
