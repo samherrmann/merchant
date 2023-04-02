@@ -16,6 +16,7 @@ func Execute() error {
 	cacheCmd.AddCommand(
 		newCacheClearCommand(),
 		newCacheDumpCommand(),
+		newCacheSizeCommand(os.Stdout),
 	)
 	configCmd := newConfigCommand()
 	configCmd.AddCommand(

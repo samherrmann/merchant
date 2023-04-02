@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/bold-commerce/go-shopify/v3 v3.13.0
+	github.com/docker/go-units v0.5.0
 	github.com/shopspring/decimal v0.0.0-20200105231215-408a2507e114
 	github.com/spf13/cobra v1.2.1
 	go.etcd.io/bbolt v1.3.7

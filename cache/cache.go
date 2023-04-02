@@ -4,6 +4,7 @@ package cache
 import (
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/samherrmann/merchant/osutil"
 )
@@ -49,6 +50,20 @@ func Clear() error {
 		return err
 	}
 	return os.RemoveAll(dir)
+}
+
+// Size returns the size of the cache database in bytes.
+func Size() (int64, error) {
+	dir, err := directory()
+	if err != nil {
+		return 0, err
+	}
+	filename := filepath.Join(dir, dbFilename)
+	stat, err := os.Stat(filename)
+	if err != nil {
+		return 0, err
+	}
+	return stat.Size(), nil
 }
 
 // directory returns the path to the cache directory. If the directory does not
