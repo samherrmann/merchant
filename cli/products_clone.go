@@ -8,13 +8,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newProductsPullCommand() *cobra.Command {
+func newProductsCloneCommand() *cobra.Command {
 	var openFile *bool
 
 	cmd := &cobra.Command{
-		Use:   "pull",
-		Short: "Fetch products and their metadata from the store",
-		Long:  "Fetch all products from the store. Metafields may optionally be included",
+		Use:   "clone",
+		Short: "Clone products and their metadata from the store into the cache",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Command usage is correct at this point.
