@@ -25,6 +25,7 @@ func Execute() error {
 	productsCmd.AddCommand(
 		newProductsCountCommand(os.Stdout),
 		newProductsFakePushCommand(os.Stdout, config.AppName+".push.json"),
+		newProductsCheckoutCommand(),
 		newProductsCloneCommand(),
 		newProductsPushCommand(),
 		newProductsVerifyCommand(os.Stdout),

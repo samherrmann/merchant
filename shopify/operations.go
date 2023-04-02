@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
-	"github.com/samherrmann/merchant/cache"
 	"github.com/samherrmann/merchant/memdb"
 )
 
@@ -18,26 +17,13 @@ type ListOptions = goshopify.ListOptions
 // getProducts gets all products from the store and stores them in the cache
 // file.
 func getProducts(pService ProductService, vService VariantService) ([]Product, error) {
-	c, err := cache.New()
+	products, err := listProducts(pService, nil)
 	if err != nil {
 		return nil, err
 	}
-	products, err := c.Products().List()
-	if err != nil {
-		return nil, err
-	}
-	if len(products) == 0 {
-		products, err = listProducts(pService, nil)
-		if err != nil {
-			return nil, err
-		}
-		for _, p := range products {
-			fmt.Printf("Getting metafields for product %v\n", p.ID)
-			if err := attachMetafields(pService, vService, &p); err != nil {
-				return nil, err
-			}
-		}
-		if err := c.Products().Update(products...); err != nil {
+	for _, p := range products {
+		fmt.Printf("Getting metafields for product %v\n", p.ID)
+		if err := attachMetafields(pService, vService, &p); err != nil {
 			return nil, err
 		}
 	}

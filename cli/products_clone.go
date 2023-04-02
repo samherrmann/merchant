@@ -1,16 +1,13 @@
 package cli
 
 import (
+	"github.com/samherrmann/merchant/cache"
 	"github.com/samherrmann/merchant/config"
-	"github.com/samherrmann/merchant/csv"
-	"github.com/samherrmann/merchant/editor"
 	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
 func newProductsCloneCommand() *cobra.Command {
-	var openFile *bool
-
 	cmd := &cobra.Command{
 		Use:   "clone",
 		Short: "Clone products and their metadata from the store into the cache",
@@ -30,26 +27,13 @@ func newProductsCloneCommand() *cobra.Command {
 				return err
 			}
 
-			if err := csv.WriteProductsFile(products); err != nil {
+			c, err := cache.New()
+			if err != nil {
 				return err
 			}
 
-			if *openFile {
-				editor := newSpreadsheetEditor(cfg.SpreadsheetEditor...)
-				if err := editor.Open(csv.ProductsFilename); err != nil {
-					return err
-				}
-			}
-			return nil
+			return c.Products().Update(products...)
 		},
 	}
-	openFile = cmd.Flags().Bool("open", false, "Open product file after pulling")
 	return cmd
-}
-
-func newSpreadsheetEditor(cmd ...string) editor.Editor {
-	if len(cmd) == 0 {
-		cmd = config.DefaultSpreadsheetEditor
-	}
-	return editor.New(cmd...)
 }
