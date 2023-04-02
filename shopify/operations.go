@@ -21,8 +21,9 @@ func getProducts(pService ProductService, vService VariantService) ([]Product, e
 	if err != nil {
 		return nil, err
 	}
-	for _, p := range products {
-		fmt.Printf("Getting metafields for product %v\n", p.ID)
+	count := len(products)
+	for i, p := range products {
+		fmt.Printf("Cloning metafields for product %v [%v/%v]\n", p.ID, i+1, count)
 		if err := attachMetafields(pService, vService, &p); err != nil {
 			return nil, err
 		}
