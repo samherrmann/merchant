@@ -5,10 +5,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/samherrmann/merchant/config"
+	cachepkg "github.com/samherrmann/merchant/cache"
 	"github.com/samherrmann/merchant/csv"
 	"github.com/samherrmann/merchant/memdb"
-	"github.com/samherrmann/merchant/shopify"
 	"github.com/spf13/cobra"
 )
 
@@ -22,16 +21,15 @@ func newProductsFakePushCommand(output io.Writer, outputFilename string) *cobra.
 			cmd.SilenceUsage = true
 			inputFilename := args[0]
 
-			cfg, err := config.Load()
-			if err != nil {
-				return err
-			}
-			store := shopify.NewClient(&cfg.Store)
 			incoming, err := csv.ReadProducts(inputFilename)
 			if err != nil {
 				return err
 			}
-			inventory, err := store.GetProducts()
+			cache, err := cachepkg.New()
+			if err != nil {
+				return err
+			}
+			inventory, err := cache.Products().List()
 			if err != nil {
 				return err
 			}
@@ -43,7 +41,6 @@ func newProductsFakePushCommand(output io.Writer, outputFilename string) *cobra.
 			if err != nil {
 				return err
 			}
-
 			file, err := os.Create(outputFilename)
 			if err != nil {
 				return err
