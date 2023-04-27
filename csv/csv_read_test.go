@@ -111,6 +111,8 @@ func Test_groupVariants(t *testing.T) {
 					keyOption2Value,
 					keyOption3Name,
 					keyOption3Value,
+					"product.metafields.foo.bar",
+					"variant.metafields.foo.bar",
 				},
 				{
 					"123",
@@ -129,6 +131,8 @@ func Test_groupVariants(t *testing.T) {
 					"myOption2Value",
 					"myOption3Name",
 					"myOption3Value",
+					"myProductMetafield",
+					"myVariantMetafield",
 				},
 			},
 			want: func() []goshopify.Product {
@@ -148,6 +152,14 @@ func Test_groupVariants(t *testing.T) {
 						{Name: "myOption2Name"},
 						{Name: "myOption3Name"},
 					},
+					Metafields: []goshopify.Metafield{
+						{
+							Key:           "bar",
+							Namespace:     "foo",
+							OwnerResource: "product",
+							Value:         "myProductMetafield",
+						},
+					},
 					Variants: []goshopify.Variant{{
 						ID:         variantID,
 						ProductID:  productID,
@@ -159,6 +171,14 @@ func Test_groupVariants(t *testing.T) {
 						Option1:    "myOption1Value",
 						Option2:    "myOption2Value",
 						Option3:    "myOption3Value",
+						Metafields: []goshopify.Metafield{
+							{
+								Key:           "bar",
+								Namespace:     "foo",
+								OwnerResource: "variant",
+								Value:         "myVariantMetafield",
+							},
+						},
 					}},
 				}
 				return []goshopify.Product{p}

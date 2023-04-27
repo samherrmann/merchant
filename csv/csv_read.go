@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
 	"github.com/samherrmann/merchant/collection"
+	"github.com/samherrmann/merchant/csv/metafields"
 	"github.com/shopspring/decimal"
 )
 
@@ -54,17 +56,17 @@ func groupVariants(rows [][]string) ([]goshopify.Product, error) {
 		if !exists {
 			product = goshopify.Product{}
 		}
-		variant, err := attachVariantToProduct(&product, header, row)
-		if err != nil {
+		if err := attachRecordToProduct(&product, header, row); err != nil {
 			return nil, fmt.Errorf("row %v: %w", i, err)
 		}
-		product.ID = variant.ProductID
 		products.Set(product.Title, product)
 	}
 	return products.Slice(), nil
 }
 
-func attachVariantToProduct(product *goshopify.Product, header []string, record []string) (*goshopify.Variant, error) {
+// attachRecordToProduct attaches a record (row) from the CSV file to the given
+// product.
+func attachRecordToProduct(product *goshopify.Product, header []string, record []string) error {
 	variant := &goshopify.Variant{}
 	for i, v := range record {
 		colName := header[i]
@@ -72,13 +74,14 @@ func attachVariantToProduct(product *goshopify.Product, header []string, record 
 		case keyProductID:
 			id, err := strconv.ParseInt(v, 10, 64)
 			if err != nil {
-				return nil, colError(colName, err)
+				return colError(colName, err)
 			}
 			variant.ProductID = id
+			product.ID = id
 		case keyVariantID:
 			id, err := strconv.ParseInt(v, 10, 64)
 			if err != nil {
-				return nil, colError(colName, err)
+				return colError(colName, err)
 			}
 			variant.ID = id
 		case keySKU:
@@ -94,7 +97,7 @@ func attachVariantToProduct(product *goshopify.Product, header []string, record 
 		case keyWeight:
 			dec, err := parseDecimal(v)
 			if err != nil {
-				return nil, colError(colName, err)
+				return colError(colName, err)
 			}
 			variant.Weight = dec
 		case keyWeightUnit:
@@ -102,7 +105,7 @@ func attachVariantToProduct(product *goshopify.Product, header []string, record 
 		case keyPrice:
 			dec, err := parseDecimal(v)
 			if err != nil {
-				return nil, colError(colName, err)
+				return colError(colName, err)
 			}
 			variant.Price = dec
 		case keyOption1Name:
@@ -117,10 +120,30 @@ func attachVariantToProduct(product *goshopify.Product, header []string, record 
 			variant.Option2 = v
 		case keyOption3Value:
 			variant.Option3 = v
+		default:
+			if strings.HasPrefix(colName, "product.metafields") {
+				m, err := metafields.New(colName)
+				if err != nil {
+					return err
+				}
+				m.Value = v
+				product.Metafields = metafields.Attach(product.Metafields, m)
+				break
+			}
+			if strings.HasPrefix(colName, "variant.metafields") {
+				m, err := metafields.New(colName)
+				if err != nil {
+					return err
+				}
+				m.Value = v
+				variant.Metafields = metafields.Attach(variant.Metafields, m)
+				break
+			}
+			return fmt.Errorf("unknown column %q", colName)
 		}
 	}
 	product.Variants = append(product.Variants, *variant)
-	return variant, nil
+	return nil
 }
 
 func attachOptionToProduct(p *goshopify.Product, index int, name string) {
