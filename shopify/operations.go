@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	goshopify "github.com/bold-commerce/go-shopify/v3"
+	cachepkg "github.com/samherrmann/merchant/cache"
 	"github.com/samherrmann/merchant/memdb"
 )
 
@@ -63,9 +64,11 @@ func updateProducts(
 	vService VariantService,
 	products []Product,
 ) error {
-	// Get latest inventory from live store so that we don't accidentally make
-	// updates based on an outdated cache.
-	inventory, err := getProducts(pService, vService)
+	cache, err := cachepkg.New()
+	if err != nil {
+		return err
+	}
+	inventory, err := cache.Products().List()
 	if err != nil {
 		return err
 	}
